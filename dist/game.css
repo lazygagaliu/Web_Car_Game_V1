@@ -1,0 +1,126 @@
+@font-face {
+  font-family: mario;
+  src: url("asset/font/SuperMario256.ttf");
+}
+
+:root {
+  --bar-height: 0px;
+  --needle-rotation: 134deg;
+}
+
+/* Fix the position of divs */
+.fuel-outer, .meter, .meter-number, .meter-unit, .n-outer, .countdown {
+  position: absolute;
+}
+
+/* Countdown */
+.countdown {
+  font-family: mario; font-size: 0px;
+  color: #ff4500;
+  top: 35%; left: 48%;
+  animation: countdown 1s linear 2s;
+}
+@keyframes countdown {
+  from {font-size: 180px;}
+  to {font-size: 60px;}
+}
+
+/* Fuel */
+.fuel-outer {
+  width: 500px; height: 30px;
+  top: 30px; right: 45px;
+  border-radius: 8px;
+  border: 1px solid #999;
+  opacity: 0.6;
+  transform: skew(45deg,0deg);
+}
+.fuel-inner {
+  width: 0px; height: 30px;
+  top: 30px; right: 50px;
+  background-color: #ffa042;
+  border-radius: 8px;
+  animation: fuel 120s linear 5s;
+}
+@keyframes fuel {
+  from {width: 500px;}
+  to {width: 0px;}
+}
+
+/* Speedometer */
+.meter {
+  bottom: 30px; right: 50px;
+  width: 200px; height: 200px;
+  background-image: url("../asset/imgs/meter.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.75;
+}
+.needle {
+  width: 200px; height: 200px;
+  background-image: url("../asset/imgs/needle.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: rotate( var(--needle-rotation) );
+}
+.vibrant {
+  animation: speed 0.05s linear 0s infinite alternate;
+}
+.vibrant-up {
+  animation: speedup 0.05s linear 0s infinite alternate;
+}
+@keyframes speed {
+  from {transform: rotate(453deg);}
+  to {transform: rotate(448deg);}
+}
+@keyframes speedup {
+  from {transform: rotate(493deg);}
+  to {transform: rotate(488deg);}
+}
+.meter-number {
+  opacity: 0.5;
+  font-size: 60px;
+  bottom: 60px;
+  right: 270px;
+}
+.meter-unit {
+  opacity: 0.5;
+  font-size: 30px;
+  bottom: 25px;
+  right: 240px;
+}
+
+
+/* N2O */
+.lightning {
+  width: 15px;
+  position: absolute;
+  top: 55px; left: 8px;
+  z-index: 50;
+}
+.n-outer {
+  display: flex; align-items: flex-end;
+  width: 30px; height: 130px;
+  bottom: 32px; right: 370px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+.n-inner {
+  border-radius: 8px;
+  width: 30px; height: var(--bar-height);
+  background-color: skyblue;
+  opacity: 0.8;
+}
+.speed-up {
+  animation: n2ouse 4s linear 0s 1 normal;
+}
+.accumulation {
+  animation: n2oacc 10s linear 0s 1 normal;
+}
+@keyframes n2ouse {
+  from {height: 130px;}
+  to {height: 0px;}
+}
+@keyframes n2oacc {
+  from {height: var(--bar-height);}
+  to {height: 130px;}
+}
