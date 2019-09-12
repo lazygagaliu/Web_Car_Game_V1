@@ -1,0 +1,35 @@
+{
+  "name": "ride_or_die",
+  "version": "1.0.0",
+  "description": "Small Project -- Web Car Game !!!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "watch": "webpack --mode development --watch",
+    "start": "webpack-dev-server --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lazygagaliu/Web_Car_Game_V1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lazygagaliu/Web_Car_Game_V1/issues"
+  },
+  "homepage": "https://github.com/lazygagaliu/Web_Car_Game_V1#readme",
+  "devDependencies": {
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.8",
+    "webpack-dev-server": "^3.8.0"
+  },
+  "dependencies": {
+    "cannon": "github:schteppe/cannon.js",
+    "postprocessing": "^6.7.0",
+    "three": "^0.108.0",
+    "three-obj-mtl-loader": "^1.0.3",
+    "three-orbitcontrols": "^2.102.2"
+  }
+}
