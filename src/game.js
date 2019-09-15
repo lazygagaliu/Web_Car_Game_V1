@@ -184,11 +184,13 @@ function Car () {
 
   this.move = () => {
 
-    // // Run out of the time --> make car stop
-    // let timeBarWidth = getComputedStyle(timeBar).width;
-    // if( timeBarWidth === "0px" ){
-    //   car.move = "stop";
-    // }
+    // Run out of the time --> make car stop
+    if( components.timeBar ){
+      components.timeBarWidth = getComputedStyle(components.timeBar).width;
+      if( components.timeBarWidth === "0px" ){
+        this.movement = "stop";
+      }
+    }
 
     // use NOS -- SpeedUp -> true ----- change some states for nos
     if( this.speedUp ){
@@ -638,7 +640,7 @@ let initWorld = () => {
         return;
       }
       if(n < 1) {
-        createElement("div", { className: "fuel-inner" }, components.timeWrapper);
+        components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
       }
     }, 1000 );
 
