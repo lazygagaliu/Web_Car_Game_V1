@@ -6,11 +6,20 @@
 :root {
   --bar-height: 0px;
   --needle-rotation: 134deg;
+  --needle-vibrant: 449deg;
 }
 
 /* Fix the position of divs */
-.fuel-outer, .meter, .meter-number, .meter-unit, .n-outer, .countdown {
+.loading, .fuel-outer, .meter, .meter-number, .meter-unit, .n-outer, .countdown {
   position: absolute;
+}
+
+/* Loading */
+.loading {
+  width: 100%; height: 100%;
+  top: 0px; left: 0px;
+  background-color: black; color: #fff;
+  z-index: 1000;
 }
 
 /* Countdown */
@@ -63,19 +72,19 @@
   transform: rotate( var(--needle-rotation) );
 }
 .vibrant {
-  animation: speed 0.05s linear 0s infinite alternate;
+  animation: vibrant 0.05s linear 0s infinite alternate;
 }
-.vibrant-up {
+/* .vibrant-up {
   animation: speedup 0.05s linear 0s infinite alternate;
+} */
+@keyframes vibrant {
+  from {transform: rotate( var(--needle-rotation) );}
+  to {transform: rotate( var(--needle-vibrant) );}  /* calc( rotate( var(--needle-rotation) - 5deg ) ) */
 }
-@keyframes speed {
-  from {transform: rotate(453deg);}
-  to {transform: rotate(448deg);}
-}
-@keyframes speedup {
-  from {transform: rotate(493deg);}
-  to {transform: rotate(488deg);}
-}
+/* @keyframes speedup {
+  from {transform: rotate(694deg);}
+  to {transform: rotate(689deg);}
+} */
 .meter-number {
   opacity: 0.5;
   font-size: 60px;

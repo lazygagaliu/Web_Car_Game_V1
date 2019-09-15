@@ -4,7 +4,10 @@ import { MTLLoader, OBJLoader } from "three-obj-mtl-loader";
 import OrbitControls from 'three-orbitcontrols';
 
 /* --- Variables --- */
-let renderer, scene, camera, light, world, sky, floor, wall, player, driver;
+let renderer, scene, camera, light, world, sky, floor, wall, player, driver, components;
+
+let body = document.querySelector("body");
+let loading = document.querySelector(".loading");
 
 let loader = new THREE.TextureLoader();
 
@@ -89,10 +92,25 @@ let initThree = () => {
   // Add helper
   axes = new THREE.AxisHelper(200);
   // scene.add(axes);
-  const controls = new OrbitControls(camera, renderer.domElement);
+  // const controls = new OrbitControls(camera, renderer.domElement);
 }
 
-/* ---  Settings for World Objs !  --- */
+// Create Element to render on the screen
+let createElement = (tag, atrs, parentElement) => {
+  let obj = document.createElement(tag);
+  if(atrs){setAttributes(obj, atrs);}
+  if(parentElement instanceof Element){parentElement.appendChild(obj);}
+	return obj;
+}
+
+let setAttributes = (obj, atrs) => {
+  for(let key in atrs){
+		obj[key] = atrs[key];
+	}
+	return obj;
+}
+
+/* -------------  Settings for World Objs !  ------------- */
 // Car Obj with Car Model
 function Car () {
   // Shape related
@@ -106,16 +124,28 @@ function Car () {
   });
 
   // States
-  this.move = "stop";
-  this.accelaration = 0.1;
-  this.decelaration = 0.03;
-  this.meter = 134;
-  this.num = 0;
-  this.speed = 0;
+  this.movement = "stop";
   this.speedUp = false;
-  this.accelarationMax = 0.1;
-  this.maxSpeed = 4;
-  this.maxSpeedUp = 5;
+  // Speed
+  this.speed = 0;
+  this.accelaration = 0.1; // nos 0.3  back -0.05
+  this.decelaration = 0.03;
+  this.brake = 0.05;
+  this.maxSpeed = 4;  // nos 7  back -2
+  // Meter
+  this.meter = 134;
+  this.meterAccelaration = 7.9; // nos 23.7  back 4
+  this.meterDecelaration = 2.4;
+  this.meterBrake = 4;
+  this.maxMeter = 454; // nos 694  back 294
+  // Num
+  this.num = 0;
+  this.numAccelaration = 2.5; // nos 7.5  back 1.25
+  this.numDecelaration = 0.75;
+  this.numBrake = 1.25;
+  this.maxNum = 100;  // nos 175  back 50
+
+
   this.radian = 0;
   this.rotation = 0;
 
@@ -152,7 +182,178 @@ function Car () {
     this.car = this.loadModel("asset/chevrolet/", "chevrolet.mtl", "chevrolet.obj");
   }
 
+  this.move = () => {
 
+    // // Run out of the time --> make car stop
+    // let timeBarWidth = getComputedStyle(timeBar).width;
+    // if( timeBarWidth === "0px" ){
+    //   car.move = "stop";
+    // }
+
+    // use NOS -- SpeedUp -> true ----- change some states for nos
+    if( this.speedUp ){
+      this.accelaration = 0.3;
+      this.maxSpeed = 7;
+      this.meterAccelaration = 23.7;
+      this.maxMeter = 694;
+      this.numAccelaration = 7.5;
+      this.maxNum = 175;
+    } else if( this.speed < 0 || this.speed == 0 && this.movement === "back" ){
+      this.accelaration = -0.05;
+      this.maxSpeed = -2;
+      this.meterAccelaration = 4;
+      this.maxMeter = 294;
+      this.numAccelaration = 1.25;
+      this.maxNum = 50;
+    } else {
+      this.accelaration = 0.1;
+      this.maxSpeed = 4;
+      this.meterAccelaration = 7.9;
+      this.maxMeter = 454;
+      this.numAccelaration = 2.5;
+      this.maxNum = 100;
+    }
+
+    switch (this.movement) {
+      case "forward":
+      if( this.speed >= 0 ){
+
+        this.speed += this.accelaration;
+        this.meter += this.meterAccelaration;
+        this.num += this.numAccelaration;
+        if( this.speed > this.maxSpeed ){
+          this.speed = this.maxSpeed;
+          this.meter = this.maxMeter;
+          this.num = this.maxNum;
+        }
+
+      } else {
+        this.speed += this.brake;
+        this.meter -= this.meterBrake;
+        this.num -= this.numBrake;
+      }
+      break;
+
+
+      case "back":
+      if( this.speed <= 0 ){
+        console.log("back");
+        this.speed += this.accelaration;
+        this.meter += this.meterAccelaration;
+        this.num += this.numAccelaration;
+        if( this.speed < this.maxSpeed ){
+          this.speed = this.maxSpeed;
+          this.meter = this.maxMeter;
+          this.num = this.maxNum;
+        }
+
+      } else {
+        console.log("brake");
+        this.speed -= this.brake;
+        this.meter -= this.meterBrake;
+        this.num -= this.numBrake;
+      }
+
+      break;
+
+
+      case "stop":
+      // meter.setAttribute("class", "needle");
+      if( this.speed > 0 ){
+        this.speed -= this.decelaration;
+        this.meter -= this.meterDecelaration;
+        this.num -= this.numDecelaration;
+        if( this.speed < 0 ){
+          this.speed = 0;
+          this.meter = 134;
+          this.num = 0;
+        }
+      } else if( this.speed < 0 ){
+        this.speed += this.decelaration;
+        this.meter -= this.meterDecelaration;
+        this.num -= this.numDecelaration;
+        if( this.speed > 0 ){
+          this.speed = 0;
+          this.meter = 134;
+          this.num = 0;
+        }
+      }
+
+      break;
+    }
+
+    if( this.speed < 0 ){
+      this.rotation -= this.radian;
+    } else {
+      this.rotation += this.radian;
+    }
+
+    // Update NosBarHeight
+    components.nosBarHeight = getComputedStyle(components.nosBar).height;
+    components.nosBarHeightNum = parseInt(components.nosBarHeight.match(/\d+/)[0]);
+
+    if( !this.speedUp && components.nosBarHeightNum < 1  ){
+      components.nosBar.setAttribute("class", "n-inner accumulation");
+    } else if( !this.speedUp && components.nosBarHeightNum > 128 ){
+      components.nosBar.style.setProperty("--bar-height", components.nosBarHeight);
+    } else if( this.speedUp && components.nosBarHeightNum > 128 ){
+      components.nosBar.style.removeProperty("--bar-height");
+      components.nosBar.setAttribute("class", "n-inner speed-up");
+    } else if( this.speedUp && components.nosBarHeightNum < 1 ){
+      this.speedUp = false;
+      components.nosBar.setAttribute("class", "n-inner accumulation");
+    } else if( !this.speedUp && components.nosBarHeightNum > 1 && components.nosbarHeightNum < 128 ){
+      components.nosBar.setAttribute("class", "n-inner accumulation");
+    }
+
+    if( this.speed === 0 ){
+      components.nosBar.classList.remove("accumulation");
+      if( !this.speedUp ){
+        components.nosBar.style.setProperty("--bar-height", components.nosBarHeight);
+      } else if( this.speedUp && components.nosBarHeightNum > 128 ){
+        components.nosBar.style.removeProperty("--bar-height");
+        components.nosBar.setAttribute("class", "n-inner speed-up");
+      } else if( this.speedUp && components.nosBarHeightNum < 1 ){
+        this.speedUp = false;
+        components.nosBar.setAttribute("class", "n-inner accumulation");
+      }
+      return;
+    }
+    // else{ stopSound.pause(); }
+
+
+    let x = Math.sin(this.rotation) * this.speed;
+    let z = Math.cos(this.rotation) * this.speed;
+
+    // Update Car position
+    this.cannonBody.quaternion.setFromAxisAngle( new CANNON.Vec3(0, 1, 0), 2*Math.PI/360*180 + this.rotation);
+    this.cannonBody.position.z -= z;  //driver
+    this.cannonBody.position.x -= x;  //driver
+
+    // Update Camera position
+    camera.rotation.y = this.rotation;
+    camera.position.x = driver.position.x + Math.sin(this.rotation)*50;
+    camera.position.z = driver.position.z + Math.cos(this.rotation)*50;
+
+    // Update the Meter
+    components.needle.style.transform = `rotate(${this.meter}deg)`;
+
+    // Update needle transformed degree
+    // components.needleR = components.getNeedleDeg();
+    components.needle.style.setProperty("--needle-rotation", `${this.meter}deg`);
+
+    if( this.meter === this.maxMeter ){
+      // console.log(this.meter);
+      components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
+      components.needle.setAttribute("class", "needle vibrant");
+    } else {
+      components.needle.setAttribute("class", "needle");
+    }
+
+    // Update the Number
+    components.speedNum.textContent = Math.floor( Math.abs( this.num ) );
+
+  }
 
 
 }
@@ -309,13 +510,10 @@ function Wall () {
         material: this.cannonMaterial
       });
     }
-    // console.log(this.body);
     return this.body;
   }
 
   this.updatePhysics = (mesh, body) => {
-    // world.step( 1/60 );
-    // console.log(mesh, body);
     mesh.position.copy(body.position);
     mesh.quaternion.copy(body.quaternion);
   }
@@ -354,9 +552,38 @@ function Wall () {
   }
 }
 
-/* --- Render it !  --- */
+// Add some elements
+function Components () {
+
+  // this.getNeedleDeg = () => {
+  //   let deg = getComputedStyle(this.needle).transform;
+  //   deg = deg.split("(")[1].split(")")[0].split(",");
+  //   deg = Math.round(Math.atan2(deg[1], deg[0]) * (180/Math.PI)); // Transfer matrix number to deg
+  //   return deg;
+  // }
+
+  this.meter = createElement("div", { className: "meter" }, body);
+  this.needle = createElement("div", { className: "needle" }, this.meter);
+
+  this.speedNum = createElement("div", { className: "meter-number", textContent: 0 }, body);
+  this.speedNumUnit = createElement("div", { className: "meter-unit", textContent: "KM/H" }, body);
+
+  this.nosWrapper = createElement("div", { className: "n-outer" }, body);
+  this.nosLightning = createElement("img", { className: "lightning", src: "asset/imgs/lightning.png" }, this.nosWrapper);
+  this.nosBar = createElement("div", { className: "n-inner" }, this.nosWrapper);
+  this.nosBarHeight = getComputedStyle(this.nosBar).height;
+  this.nosbarHeightNum = parseInt(this.nosBarHeight.match(/\d+/)[0]);
+
+
+  this.timeWrapper = createElement("div", { className: "fuel-outer" }, body);
+}
+
+
+
+
+/* --------- Render it !  --------- */
   let render = () => {
-    // move();
+    player.move();
     // cannonDebugRenderer.update();
 
     // Keep player's car updated
@@ -367,7 +594,7 @@ function Wall () {
 
   }
 
-/* ---  Create WORLD !  --- */
+/* ---------  Create WORLD !  --------- */
 let initWorld = () => {
   initCannon();
   initThree();
@@ -389,11 +616,31 @@ let initWorld = () => {
   wall.stickTextures();
   wall.addWall();
 
+  // Add Some Elements
+  components = new Components;
+
   // Add Car
   player.car.then( obj => {
     driver = obj;
     scene.add(obj);
     player.updatePhysics(obj);
+
+    // Set loading div to display none when content has loaded
+    loading.style.display = "none";
+
+    // Countdown so player can be ready to play
+    let n = 3;
+    let countdown = setInterval( ()=>{
+      createElement("div", { className: "countdown", textContent: n }, body);
+      n -= 1;
+      if(n < 0){
+        clearInterval(countdown);
+        return;
+      }
+      if(n < 1) {
+        createElement("div", { className: "fuel-inner" }, components.timeWrapper);
+      }
+    }, 1000 );
 
     // Render world after loading car model
     render();
@@ -402,3 +649,52 @@ let initWorld = () => {
 }
 
 initWorld();
+
+
+/*  ---------  Controls  ---------  */
+document.body.addEventListener( "keydown", e => {
+    switch( e.keyCode ){
+    case 38: // ^
+    player.movement = "forward";
+    break;
+    case 37: // <-
+    player.radian = 2 * Math.PI / 360 * 1.5;
+    break;
+    case 40: // ˇ
+    player.movement = "back";
+    break;
+    case 39: // ->
+    player.radian = -2 * Math.PI / 360 * 1.5;
+    break;
+
+    case 32: // spacebar
+    if( components.nosBarHeightNum > 128 ){
+      player.speedUp = true;
+    }
+    break;
+
+    // case 73: // I for test
+    // player.speedUp = false;
+    // break;
+  }
+} );
+document.body.addEventListener( "keyup", e => {
+    switch( e.keyCode ){
+    case 38: // ^
+    player.movement = "stop";
+    break;
+    case 37: // <-
+    player.radian = 0;
+    break;
+    case 40: // ->
+    player.movement = "stop";
+    break;
+    case 39: // ˇ
+    player.radian = 0;
+    break;
+
+    // case 32: // spacebar
+    // car.speedUp = false;
+    // break;
+  }
+} );
