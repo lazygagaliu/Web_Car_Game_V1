@@ -238,7 +238,7 @@ THREE.CannonDebugRenderer.prototype = {
 
 
 /* --- Variables --- */
-let renderer, scene, camera, light, world, sky, floor, wall, player, driver, components, checkpoints;
+let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints;
 
 let body = document.querySelector("body");
 let loading = document.querySelector(".loading");
@@ -248,7 +248,6 @@ let loader = new THREE.TextureLoader();
 let axes;
 let cannonDebugRenderer;
 let box;
-
 
 /* --- Track Data --- */
 const map = [
@@ -324,6 +323,9 @@ let initThree = () => {
 	light.shadow.camera.bottom = - d;
 	light.shadow.camera.far = 1000;
 	scene.add( light );
+
+  // Add clock
+  clock = new THREE.Clock();
 
   // Add helper
   axes = new THREE.AxisHelper(800);
@@ -429,6 +431,8 @@ function Car () {
       } else{
         components.runningTime();
       }
+    } else{
+      this.movement = "stop";
     }
 
     // use NOS -- SpeedUp -> true ----- change some states for nos
@@ -822,6 +826,7 @@ function Components () {
 
   // Method for creating running time
   this.runningTime = () => {
+    // Initialize the start time
     if( !this.startTime ){
       this.startTime = Date.now();
     }
@@ -829,47 +834,48 @@ function Components () {
     let s = Math.floor( ms / 1000 );
     let m = Math.floor( s / 60 );
 
-    ms = parseInt(ms.toString().slice(ms.toString().length-2));
+    ms = parseInt(ms.toString().slice(ms.toString().length-2)); // Take the last two positions of the integer
     if( s > 59 ){
       s = s % 60;
     }
     s = parseInt(s.toString().slice(s.toString().length-2));
     m = parseInt(m.toString().slice(m.toString().length-2));
 
-    let ttt = [ms, s, m];
-    let tttShow = [];
-    for(let i = 0; i < ttt.length; i++){
-      if(ttt[i].toString().length < 2){
-        tttShow[i] = `0${ttt[i]}`;
+    let timeArr = [ms, s, m];
+    let timeShow = [];
+    for(let i = 0; i < timeArr.length; i++){
+      if(timeArr[i].toString().length < 2){
+        timeShow[i] = `0${timeArr[i]}`;
       } else{
-        tttShow[i] = ttt[i];
+        timeShow[i] = timeArr[i];
       }
     }
-    this.timeCount.textContent = `${tttShow[2]}:${tttShow[1]}:${tttShow[0]}`;
+    this.timeCount.textContent = `${timeShow[2]}:${timeShow[1]}:${timeShow[0]}`;
   }
 
   this.timeWrapper = createElement("div", { className: "fuel-outer" }, body);
+  // this.timeBar = createElement("div", { className: "fuel-inner" }, this.timeWrapper);
 }
 
 // Add the Checkpoints
 function Checkpoints () {
   // coordinates of Checkpoints
   this.data = [
-    {x: 200, z: -100},
-    {x: 1350, z: -850},
-    {x: 1350, z: 950},
-    {s: 90, x: 50, z: 1350},
-    {s: 90, x: -1050, z: 1050},
-    {x: -1350, z: 50},
-    {x: -350, z: -1150},
-    {s: 45, x: -150, z: 550},
+    {x: 200, z: -100, t: 25},
+    {x: 1350, z: -850, t: 10},
+    {x: 1350, z: 950, t: 10},
+    {s: 90, x: 50, z: 1350, t: 10},
+    {s: 90, x: -1050, z: 1050, t: 10},
+    {x: -1350, z: 50, t: 20},
+    {x: -350, z: -1150, t: 10},
+    {s: 45, x: -150, z: 550, t: 10},
   ];
   this.checkpoints = [];
   this.aniNum = 0;
   this.axis = new CANNON.Vec3(0, 1, 0);
 
   // CANNON Part
-  this.cannonShape = new CANNON.Box( new CANNON.Vec3( 100, 3, 3 ) );
+  this.cannonShape = new CANNON.Box( new CANNON.Vec3( 100, 13, 3 ) );
 
   // THREE part
   this.threeGeometry = new THREE.TorusGeometry(15, 2, 12, 16);
@@ -882,7 +888,7 @@ function Checkpoints () {
   }
 
   // Method for creating the CANNON Checkpoint
-  this.createBody = (s, x, z) => {
+  this.createBody = (s, x, z, t) => {
     switch (s) {
       case 90:
       this.cannonBody = new CANNON.Body({
@@ -909,6 +915,7 @@ function Checkpoints () {
       });
     }
     this.cannonBody.collisionResponse = false;
+    this.cannonBody.time = t;
     this.cannonBody.addEventListener("collide", this.collision);
     return this.cannonBody;
   }
@@ -921,14 +928,17 @@ function Checkpoints () {
   // Method for detect the collision
   this.collision = (e) => {
     console.log("colliding!!!");
-    e.target.removeEventListener("collide", this.collision)
+    components.timeBar.remove();
+    components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
+    components.timeBar.style.setProperty("--left-time", `${e.target.time}s`);
+    e.target.removeEventListener("collide", this.collision);
   }
 
   // Method for adding checkpoints to the world
   this.addCheckpoint = () => {
     this.data.forEach( mesh => {
       let checkpoint = this.createCheckpoint();
-      let body = this.createBody(mesh.s, mesh.x, mesh.z);
+      let body = this.createBody(mesh.s, mesh.x, mesh.z, mesh.t);
       world.add( body );
       scene.add( checkpoint );
       this.checkpoints.push( checkpoint );
@@ -950,6 +960,7 @@ function Checkpoints () {
 
     cannonDebugRenderer.update();
     box.update();
+
     // Keep player's car updated
     player.updatePhysics(driver);
 
@@ -1011,16 +1022,32 @@ let initWorld = () => {
     // Countdown so player can be ready to play
     let n = 3;
     let countdown = setInterval( ()=>{
-      createElement("div", { className: "countdown", textContent: n }, body);
+      if( n === 3 ){
+        components.countdown = createElement("div", { className: "countdown", textContent: n }, body);
+      }else {
+        components.countdown.textContent = n;
+      }
       n -= 1;
-      if(n < 0){
+      if(n < 0 ){
+        console.log("okok");
+        components.countdown.textContent = "";
+        components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
         clearInterval(countdown);
         return;
       }
-      if(n < 1) {
-        components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
-      }
     }, 1000 );
+
+    // let n = 3;
+    // let countdown = setInterval( ()=>{
+    //   createElement("div", { className: "countdown", textContent: n }, body);
+    //   n -= 1;
+    //   if(n < 0 ){
+    //     console.log("okok");
+    //     components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
+    //     clearInterval(countdown);
+    //     return;
+    //   }
+    // }, 1000 );
 
     // Render world after loading car model
     render();
@@ -1071,9 +1098,5 @@ document.body.addEventListener( "keyup", e => {
     case 39: // ˇ
     player.radian = 0;
     break;
-
-    // case 32: // spacebar
-    // car.speedUp = false;
-    // break;
   }
 } );
