@@ -10,7 +10,7 @@
 }
 
 /* Fix the position of divs */
-.loading, .fuel-outer, .meter, .meter-number, .meter-unit, .n-outer, .countdown {
+.loading, .fuel-outer, .meter, .meter-number, .meter-unit, .n-outer, .countdown, .running-time {
   position: absolute;
 }
 
@@ -132,4 +132,11 @@
 @keyframes n2oacc {
   from {height: var(--bar-height);}
   to {height: 130px;}
+}
+
+/* Running Time */
+.running-time {
+  font-size: 30px;
+  top: 5px; left: 20px;
+  opacity: 0.8;
 }

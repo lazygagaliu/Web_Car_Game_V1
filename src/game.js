@@ -3,8 +3,242 @@ import * as CANNON from "cannon";
 import { MTLLoader, OBJLoader } from "three-obj-mtl-loader";
 import OrbitControls from 'three-orbitcontrols';
 
+
+
+THREE.CannonDebugRenderer = function(scene, world, options){
+    options = options || {};
+
+    this.scene = scene;
+    this.world = world;
+
+    this._meshes = [];
+
+    this._material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+    this._sphereGeometry = new THREE.SphereGeometry(1);
+    this._boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    this._planeGeometry = new THREE.PlaneGeometry( 10, 10, 10, 10 );
+    this._cylinderGeometry = new THREE.CylinderGeometry( 1, 1, 10, 10 );
+};
+
+THREE.CannonDebugRenderer.prototype = {
+
+    tmpVec0: new CANNON.Vec3(),
+    tmpVec1: new CANNON.Vec3(),
+    tmpVec2: new CANNON.Vec3(),
+    tmpQuat0: new CANNON.Vec3(),
+
+    update: function(){
+
+        var bodies = this.world.bodies;
+        var meshes = this._meshes;
+        var shapeWorldPosition = this.tmpVec0;
+        var shapeWorldQuaternion = this.tmpQuat0;
+
+        var meshIndex = 0;
+
+        for (var i = 0; i !== bodies.length; i++) {
+            var body = bodies[i];
+
+            for (var j = 0; j !== body.shapes.length; j++) {
+                var shape = body.shapes[j];
+
+                this._updateMesh(meshIndex, body, shape);
+
+                var mesh = meshes[meshIndex];
+
+                if(mesh){
+
+                    // Get world position
+                    body.quaternion.vmult(body.shapeOffsets[j], shapeWorldPosition);
+                    body.position.vadd(shapeWorldPosition, shapeWorldPosition);
+
+                    // Get world quaternion
+                    body.quaternion.mult(body.shapeOrientations[j], shapeWorldQuaternion);
+
+                    // Copy to meshes
+                    mesh.position.copy(shapeWorldPosition);
+                    mesh.quaternion.copy(shapeWorldQuaternion);
+                }
+
+                meshIndex++;
+            }
+        }
+
+        for(var i = meshIndex; i < meshes.length; i++){
+            var mesh = meshes[i];
+            if(mesh){
+                this.scene.remove(mesh);
+            }
+        }
+
+        meshes.length = meshIndex;
+    },
+
+    _updateMesh: function(index, body, shape){
+        var mesh = this._meshes[index];
+        if(!this._typeMatch(mesh, shape)){
+            if(mesh){
+                this.scene.remove(mesh);
+            }
+            mesh = this._meshes[index] = this._createMesh(shape);
+        }
+        this._scaleMesh(mesh, shape);
+    },
+
+    _typeMatch: function(mesh, shape){
+        if(!mesh){
+            return false;
+        }
+        var geo = mesh.geometry;
+        return (
+            (geo instanceof THREE.SphereGeometry && shape instanceof CANNON.Sphere) ||
+            (geo instanceof THREE.BoxGeometry && shape instanceof CANNON.Box) ||
+            (geo instanceof THREE.PlaneGeometry && shape instanceof CANNON.Plane) ||
+            (geo.id === shape.geometryId && shape instanceof CANNON.ConvexPolyhedron) ||
+            (geo.id === shape.geometryId && shape instanceof CANNON.Trimesh) ||
+            (geo.id === shape.geometryId && shape instanceof CANNON.Heightfield)
+        );
+    },
+
+    _createMesh: function(shape){
+        var mesh;
+        var material = this._material;
+
+        switch(shape.type){
+
+        case CANNON.Shape.types.SPHERE:
+            mesh = new THREE.Mesh(this._sphereGeometry, material);
+            break;
+
+        case CANNON.Shape.types.BOX:
+            mesh = new THREE.Mesh(this._boxGeometry, material);
+            break;
+
+        case CANNON.Shape.types.PLANE:
+            mesh = new THREE.Mesh(this._planeGeometry, material);
+            break;
+
+        case CANNON.Shape.types.CONVEXPOLYHEDRON:
+            // Create mesh
+            var geo = new THREE.Geometry();
+
+            // Add vertices
+            for (var i = 0; i < shape.vertices.length; i++) {
+                var v = shape.vertices[i];
+                geo.vertices.push(new THREE.Vector3(v.x, v.y, v.z));
+            }
+
+            for(var i=0; i < shape.faces.length; i++){
+                var face = shape.faces[i];
+
+                // add triangles
+                var a = face[0];
+                for (var j = 1; j < face.length - 1; j++) {
+                    var b = face[j];
+                    var c = face[j + 1];
+                    geo.faces.push(new THREE.Face3(a, b, c));
+                }
+            }
+            geo.computeBoundingSphere();
+            geo.computeFaceNormals();
+
+            mesh = new THREE.Mesh(geo, material);
+            shape.geometryId = geo.id;
+            break;
+
+        case CANNON.Shape.types.TRIMESH:
+            var geometry = new THREE.Geometry();
+            var v0 = this.tmpVec0;
+            var v1 = this.tmpVec1;
+            var v2 = this.tmpVec2;
+            for (var i = 0; i < shape.indices.length / 3; i++) {
+                shape.getTriangleVertices(i, v0, v1, v2);
+                geometry.vertices.push(
+                    new THREE.Vector3(v0.x, v0.y, v0.z),
+                    new THREE.Vector3(v1.x, v1.y, v1.z),
+                    new THREE.Vector3(v2.x, v2.y, v2.z)
+                );
+                var j = geometry.vertices.length - 3;
+                geometry.faces.push(new THREE.Face3(j, j+1, j+2));
+            }
+            geometry.computeBoundingSphere();
+            geometry.computeFaceNormals();
+            mesh = new THREE.Mesh(geometry, material);
+            shape.geometryId = geometry.id;
+            break;
+
+        case CANNON.Shape.types.HEIGHTFIELD:
+            var geometry = new THREE.Geometry();
+
+            var v0 = this.tmpVec0;
+            var v1 = this.tmpVec1;
+            var v2 = this.tmpVec2;
+            for (var xi = 0; xi < shape.data.length - 1; xi++) {
+                for (var yi = 0; yi < shape.data[xi].length - 1; yi++) {
+                    for (var k = 0; k < 2; k++) {
+                        shape.getConvexTrianglePillar(xi, yi, k===0);
+                        v0.copy(shape.pillarConvex.vertices[0]);
+                        v1.copy(shape.pillarConvex.vertices[1]);
+                        v2.copy(shape.pillarConvex.vertices[2]);
+                        v0.vadd(shape.pillarOffset, v0);
+                        v1.vadd(shape.pillarOffset, v1);
+                        v2.vadd(shape.pillarOffset, v2);
+                        geometry.vertices.push(
+                            new THREE.Vector3(v0.x, v0.y, v0.z),
+                            new THREE.Vector3(v1.x, v1.y, v1.z),
+                            new THREE.Vector3(v2.x, v2.y, v2.z)
+                        );
+                        var i = geometry.vertices.length - 3;
+                        geometry.faces.push(new THREE.Face3(i, i+1, i+2));
+                    }
+                }
+            }
+            geometry.computeBoundingSphere();
+            geometry.computeFaceNormals();
+            mesh = new THREE.Mesh(geometry, material);
+            shape.geometryId = geometry.id;
+            break;
+        }
+
+        if(mesh){
+            this.scene.add(mesh);
+        }
+
+        return mesh;
+    },
+
+    _scaleMesh: function(mesh, shape){
+        switch(shape.type){
+
+        case CANNON.Shape.types.SPHERE:
+            var radius = shape.radius;
+            mesh.scale.set(radius, radius, radius);
+            break;
+
+        case CANNON.Shape.types.BOX:
+            mesh.scale.copy(shape.halfExtents);
+            mesh.scale.multiplyScalar(2);
+            break;
+
+        case CANNON.Shape.types.CONVEXPOLYHEDRON:
+            mesh.scale.set(1,1,1);
+            break;
+
+        case CANNON.Shape.types.TRIMESH:
+            mesh.scale.copy(shape.scale);
+            break;
+
+        case CANNON.Shape.types.HEIGHTFIELD:
+            mesh.scale.set(1,1,1);
+            break;
+
+        }
+    }
+};
+
+
 /* --- Variables --- */
-let renderer, scene, camera, light, world, sky, floor, wall, player, driver, components;
+let renderer, scene, camera, light, world, sky, floor, wall, player, driver, components, checkpoints;
 
 let body = document.querySelector("body");
 let loading = document.querySelector(".loading");
@@ -12,6 +246,8 @@ let loading = document.querySelector(".loading");
 let loader = new THREE.TextureLoader();
 
 let axes;
+let cannonDebugRenderer;
+let box;
 
 
 /* --- Track Data --- */
@@ -90,7 +326,8 @@ let initThree = () => {
 	scene.add( light );
 
   // Add helper
-  axes = new THREE.AxisHelper(200);
+  axes = new THREE.AxisHelper(800);
+
   // scene.add(axes);
   // const controls = new OrbitControls(camera, renderer.domElement);
 }
@@ -115,7 +352,7 @@ let setAttributes = (obj, atrs) => {
 function Car () {
   // Shape related
   this.cannonMaterial = new CANNON.Material();
-  this.cannonShape = new CANNON.Box( new CANNON.Vec3( 5, 3, 12 ) );
+  this.cannonShape = new CANNON.Box( new CANNON.Vec3( 5, 3, 13 ) );
   this.cannonBody = new CANNON.Body({
     mass: 1,
     position: new CANNON.Vec3(200, 15, 0),
@@ -189,6 +426,8 @@ function Car () {
       components.timeBarWidth = getComputedStyle(components.timeBar).width;
       if( components.timeBarWidth === "0px" ){
         this.movement = "stop";
+      } else{
+        components.runningTime();
       }
     }
 
@@ -343,17 +582,20 @@ function Car () {
     // Update needle transformed degree
     // components.needleR = components.getNeedleDeg();
     components.needle.style.setProperty("--needle-rotation", `${this.meter}deg`);
+    // Update the Number
+    components.speedNum.textContent = Math.floor( Math.abs( this.num ) );
 
     if( this.meter === this.maxMeter ){
       // console.log(this.meter);
       components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
       components.needle.setAttribute("class", "needle vibrant");
+
+      let randomMax = Math.random() * 25 / 16;
+      components.speedNum.textContent = Math.floor( Math.abs( this.num + randomMax ) );
+
     } else {
       components.needle.setAttribute("class", "needle");
     }
-
-    // Update the Number
-    components.speedNum.textContent = Math.floor( Math.abs( this.num ) );
 
   }
 
@@ -576,20 +818,144 @@ function Components () {
   this.nosBarHeight = getComputedStyle(this.nosBar).height;
   this.nosbarHeightNum = parseInt(this.nosBarHeight.match(/\d+/)[0]);
 
+  this.timeCount = createElement("div", { className: "running-time", textContent: `00:00:00` }, body);
+
+  // Method for creating running time
+  this.runningTime = () => {
+    if( !this.startTime ){
+      this.startTime = Date.now();
+    }
+    let ms = Math.floor( Date.now() - this.startTime );
+    let s = Math.floor( ms / 1000 );
+    let m = Math.floor( s / 60 );
+
+    ms = parseInt(ms.toString().slice(ms.toString().length-2));
+    if( s > 59 ){
+      s = s % 60;
+    }
+    s = parseInt(s.toString().slice(s.toString().length-2));
+    m = parseInt(m.toString().slice(m.toString().length-2));
+
+    let ttt = [ms, s, m];
+    let tttShow = [];
+    for(let i = 0; i < ttt.length; i++){
+      if(ttt[i].toString().length < 2){
+        tttShow[i] = `0${ttt[i]}`;
+      } else{
+        tttShow[i] = ttt[i];
+      }
+    }
+    this.timeCount.textContent = `${tttShow[2]}:${tttShow[1]}:${tttShow[0]}`;
+  }
 
   this.timeWrapper = createElement("div", { className: "fuel-outer" }, body);
 }
 
+// Add the Checkpoints
+function Checkpoints () {
+  // coordinates of Checkpoints
+  this.data = [
+    {x: 200, z: -100},
+    {x: 1350, z: -850},
+    {x: 1350, z: 950},
+    {s: 90, x: 50, z: 1350},
+    {s: 90, x: -1050, z: 1050},
+    {x: -1350, z: 50},
+    {x: -350, z: -1150},
+    {s: 45, x: -150, z: 550},
+  ];
+  this.checkpoints = [];
+  this.aniNum = 0;
+  this.axis = new CANNON.Vec3(0, 1, 0);
 
+  // CANNON Part
+  this.cannonShape = new CANNON.Box( new CANNON.Vec3( 100, 3, 3 ) );
+
+  // THREE part
+  this.threeGeometry = new THREE.TorusGeometry(15, 2, 12, 16);
+  this.threeMaterial = new THREE.MeshLambertMaterial({color: 0xffd306});
+
+  // Methed for creating the THREE Checkpoint
+  this.createCheckpoint = () => {
+    this.checkpoint = new THREE.Mesh( this.threeGeometry, this.threeMaterial );
+    return this.checkpoint;
+  }
+
+  // Method for creating the CANNON Checkpoint
+  this.createBody = (s, x, z) => {
+    switch (s) {
+      case 90:
+      this.cannonBody = new CANNON.Body({
+        mass: 0,
+        position: new CANNON.Vec3( x, 10, z ),
+        shape: this.cannonShape,
+      });
+      this.cannonBody.quaternion.setFromAxisAngle( this.axis, 2*Math.PI/360*90 );
+      break;
+      case 45:
+      this.cannonBody = new CANNON.Body({
+        mass: 0,
+        position: new CANNON.Vec3( x, 10, z ),
+        shape: this.cannonShape,
+      });
+      this.cannonBody.quaternion.setFromAxisAngle( this.axis, 2*Math.PI/360*45 );
+      break;
+
+      default:
+      this.cannonBody = new CANNON.Body({
+        mass: 0,
+        position: new CANNON.Vec3( x, 10, z ),
+        shape: this.cannonShape,
+      });
+    }
+    this.cannonBody.collisionResponse = false;
+    this.cannonBody.addEventListener("collide", this.collision);
+    return this.cannonBody;
+  }
+
+  this.updatePhysics = (mesh, body) => {
+    mesh.position.copy(body.position);
+    mesh.quaternion.copy(body.quaternion);
+  }
+
+  // Method for detect the collision
+  this.collision = (e) => {
+    console.log("colliding!!!");
+    e.target.removeEventListener("collide", this.collision)
+  }
+
+  // Method for adding checkpoints to the world
+  this.addCheckpoint = () => {
+    this.data.forEach( mesh => {
+      let checkpoint = this.createCheckpoint();
+      let body = this.createBody(mesh.s, mesh.x, mesh.z);
+      world.add( body );
+      scene.add( checkpoint );
+      this.checkpoints.push( checkpoint );
+      this.updatePhysics(checkpoint, body);
+    });
+  }
+
+  this.animation = n => {
+    this.checkpoints.forEach( mesh => {
+      mesh.scale.y = Math.abs( Math.sin(n) );
+    });
+  }
+}
 
 
 /* --------- Render it !  --------- */
   let render = () => {
     player.move();
-    // cannonDebugRenderer.update();
 
+    cannonDebugRenderer.update();
+    box.update();
     // Keep player's car updated
     player.updatePhysics(driver);
+
+    // Checkpoints Animation
+    checkpoints.aniNum += 0.05;
+    checkpoints.animation( checkpoints.aniNum );
 
     requestAnimationFrame(render);
     renderer.render( scene, camera );
@@ -600,6 +966,10 @@ function Components () {
 let initWorld = () => {
   initCannon();
   initThree();
+
+  ////// Helper
+  cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
+
 
   // Load Car
   player = new Car;
@@ -618,6 +988,10 @@ let initWorld = () => {
   wall.stickTextures();
   wall.addWall();
 
+  // Add Checkpoints
+  checkpoints = new Checkpoints;
+  checkpoints.addCheckpoint();
+
   // Add Some Elements
   components = new Components;
 
@@ -626,6 +1000,10 @@ let initWorld = () => {
     driver = obj;
     scene.add(obj);
     player.updatePhysics(obj);
+
+    /// Box helper
+    box = new THREE.BoxHelper( driver, 0x000000 );
+  	scene.add( box );
 
     // Set loading div to display none when content has loaded
     loading.style.display = "none";
@@ -651,7 +1029,6 @@ let initWorld = () => {
 }
 
 initWorld();
-
 
 /*  ---------  Controls  ---------  */
 document.body.addEventListener( "keydown", e => {
