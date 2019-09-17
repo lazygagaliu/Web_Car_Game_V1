@@ -237,17 +237,22 @@ THREE.CannonDebugRenderer.prototype = {
 };
 
 
-/* --- Variables --- */
-let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints;
+/* --------- Variables --------- */
+let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints, audio;
 
+// Web Audio API
+let AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioContext = new window.AudioContext;
+
+// DOMS from HTML
 let body = document.querySelector("body");
 let loading = document.querySelector(".loading");
 
+// THREE TextureLoader
 let loader = new THREE.TextureLoader();
 
-let axes;
-let cannonDebugRenderer;
-let box;
+// Helper
+let axes, cannonDebugRenderer, box;
 
 /* --- Track Data --- */
 const map = [
@@ -418,7 +423,7 @@ function Car () {
   this.addCar = () => {
     this.cannonBody.quaternion.setFromAxisAngle( new CANNON.Vec3(0, 1, 0), 2*Math.PI/360*180 );
     world.add( this.cannonBody );
-    this.car = this.loadModel("asset/chevrolet/", "chevrolet.mtl", "chevrolet.obj");
+    this.car = this.loadModel("asset/chevrolet/", "chevrolet.mtl", "new.obj");
   }
 
   this.move = () => {
@@ -953,6 +958,76 @@ function Checkpoints () {
   }
 }
 
+// Add audios
+function Audio () {
+  // Audio files
+  this.data = [
+    "asset/audio/eminem_feat_ludacris_lil_wayne_second_chance.mp3",
+    "asset/audio/start.mp3",
+    "asset/audio/stop.mp3",
+    "asset/audio/maxdrive.mp3",
+    "asset/audio/slowdown.mp3"
+  ];
+
+  // Store decoded audios for future use
+  this.audioNodes = [];
+
+  // Method for comparing the audios length for sorting them out
+  this.compare = (a, b) => {
+    let audioA = a.buffer.duration;
+    let audioB = b.buffer.duration;
+    let comparison = 0;
+    if( audioA > audioB ){
+      comparison = 1;
+    } else if( audioA < audioB ){
+      comparison = -1;
+    }
+    return comparison;
+  }
+
+  // Method for decoding the audios
+  this.decode = (audio) => {
+    return new Promise( (resolve, reject) => {
+      audioContext.decodeAudioData( audio, buffer =>{
+        let src = audioContext.createBufferSource();
+        src.buffer = buffer;
+        src.connect(audioContext.destination);
+        src.loop = true;
+        resolve(src);
+      },
+      e => { console.log("Error with decoding the audio", e.err); });
+    });
+  }
+
+  // Methed to get Audio Data
+  this.getData = this.data.forEach( url => {
+    let xhr = new XMLHttpRequest();
+
+    xhr.open( "GET", url, true );
+    xhr.responseType = "arraybuffer";
+    xhr.onload = () => {
+      let audioData = xhr.response;
+      let xhrDone = this.decode(audioData);
+      xhrDone.then( src => {
+        this.audioNodes.push(src);
+        if( this.audioNodes.length === this.data.length ){
+          this.audioNodes.sort(this.compare);
+          console.log(this.audioNodes);
+          this.start = this.audioNodes[0];
+          this.slowSound = this.audioNodes[1];
+          this.stopSound = this.audioNodes[2];
+          this.maxSound = this.audioNodes[3];
+          this.themeSong = this.audioNodes[4];
+        }
+      });
+    }
+    xhr.send();
+  });
+
+
+
+}
+
 
 /* --------- Render it !  --------- */
   let render = () => {
@@ -985,6 +1060,9 @@ let initWorld = () => {
   // Load Car
   player = new Car;
   player.addCar();
+
+  // Load Audio
+  audio = new Audio;
 
   // Add SkyBox
   sky = new Skybox;
@@ -1029,7 +1107,7 @@ let initWorld = () => {
       }
       n -= 1;
       if(n < 0 ){
-        console.log("okok");
+        audio.themeSong.start();
         components.countdown.textContent = "";
         components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
         clearInterval(countdown);

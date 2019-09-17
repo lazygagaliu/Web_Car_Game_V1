@@ -23,7 +23,7 @@ let load = () => {
       let objLoader = new OBJLoader();
       objLoader.setMaterials(materials);
       objLoader.setPath("asset/chevrolet/");
-      objLoader.load("chevrolet.obj", obj => {
+      objLoader.load("new.obj", obj => {
         obj.scale.set(0.5, 0.5, 0.5);
         obj.castShadow = true;
         obj.receiveShadow = false;
@@ -103,7 +103,7 @@ let init = () => {
     // renderer.render( scene, camera );
     helper.update();
     composer.render();
-    // car.rotation.y -= 0.005;   // Make car rotate or not ?!
+    car.rotation.y -= 0.005;   // Make car rotate or not ?!
   }
 
   let loadCar = load();
