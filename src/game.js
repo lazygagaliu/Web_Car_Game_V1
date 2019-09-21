@@ -467,11 +467,12 @@ function Car () {
     switch (this.movement) {
       case "forward":
       if( this.speed >= 0 ){
-
+        audio.play("startSound");
         this.speed += this.accelaration;
         this.meter += this.meterAccelaration;
         this.num += this.numAccelaration;
         if( this.speed > this.maxSpeed ){
+          // audio.play("maxSound");
           this.speed = this.maxSpeed;
           this.meter = this.maxMeter;
           this.num = this.maxNum;
@@ -492,6 +493,7 @@ function Car () {
         this.meter += this.meterAccelaration;
         this.num += this.numAccelaration;
         if( this.speed < this.maxSpeed ){
+          // audio.play("maxSound");
           this.speed = this.maxSpeed;
           this.meter = this.maxMeter;
           this.num = this.maxNum;
@@ -499,6 +501,7 @@ function Car () {
 
       } else {
         console.log("brake");
+        audio.play("slowSound");
         this.speed -= this.brake;
         this.meter -= this.meterBrake;
         this.num -= this.numBrake;
@@ -510,15 +513,18 @@ function Car () {
       case "stop":
       // meter.setAttribute("class", "needle");
       if( this.speed > 0 ){
+        audio.play("slowSound");
         this.speed -= this.decelaration;
         this.meter -= this.meterDecelaration;
         this.num -= this.numDecelaration;
         if( this.speed < 0 ){
+          audio.play("stopSound");
           this.speed = 0;
           this.meter = 134;
           this.num = 0;
         }
       } else if( this.speed < 0 ){
+        audio.play("slowSound");
         this.speed += this.decelaration;
         this.meter -= this.meterDecelaration;
         this.num -= this.numDecelaration;
@@ -963,19 +969,31 @@ function Audio () {
   // Audio files
   this.data = [
     "asset/audio/eminem_feat_ludacris_lil_wayne_second_chance.mp3",
-    "asset/audio/start.mp3",
-    "asset/audio/stop.mp3",
+    "asset/audio/startnew.mp3",
+    "asset/audio/stopnew.ogg",
     "asset/audio/maxdrive.mp3",
-    "asset/audio/slowdown.mp3"
+    "asset/audio/slowdownnew.mp3"
   ];
 
   // Store decoded audios for future use
-  this.audioNodes = [];
+  this.audioNodesBuffer = [];
+  this.audioNodesData = [];
+  this.audioNames = [
+    "startSound",
+    "slowSound",
+    "maxSound",
+    "stopSound",
+    "themeSong"
+  ];
+
+  // The data for the startSound to loop the max speed period
+  this.loopStart = 1.018;
+  this.loopEnd = 1.037;
 
   // Method for comparing the audios length for sorting them out
   this.compare = (a, b) => {
-    let audioA = a.buffer.duration;
-    let audioB = b.buffer.duration;
+    let audioA = a.duration;
+    let audioB = b.duration;
     let comparison = 0;
     if( audioA > audioB ){
       comparison = 1;
@@ -985,15 +1003,28 @@ function Audio () {
     return comparison;
   }
 
+  // Create Audio Objs
+  function Obj ( buffer, name ) {
+    this.buffer = buffer;
+    this.playing = false;
+    this.name = name
+  }
+
+  //
+  this.countdownSound = () => {
+    let countdownSound = audioContext.createOscillator();
+    countdownSound.type = "triangle";
+    countdownSound.frequency.value = 280;
+    countdownSound.connect(audioContext.destination);
+    return countdownSound;
+  }
+
+
   // Method for decoding the audios
   this.decode = (audio) => {
     return new Promise( (resolve, reject) => {
       audioContext.decodeAudioData( audio, buffer =>{
-        let src = audioContext.createBufferSource();
-        src.buffer = buffer;
-        src.connect(audioContext.destination);
-        src.loop = true;
-        resolve(src);
+        resolve(buffer);
       },
       e => { console.log("Error with decoding the audio", e.err); });
     });
@@ -1008,22 +1039,64 @@ function Audio () {
     xhr.onload = () => {
       let audioData = xhr.response;
       let xhrDone = this.decode(audioData);
-      xhrDone.then( src => {
-        this.audioNodes.push(src);
-        if( this.audioNodes.length === this.data.length ){
-          this.audioNodes.sort(this.compare);
-          console.log(this.audioNodes);
-          this.start = this.audioNodes[0];
-          this.slowSound = this.audioNodes[1];
-          this.stopSound = this.audioNodes[2];
-          this.maxSound = this.audioNodes[3];
-          this.themeSong = this.audioNodes[4];
+      xhrDone.then( buffer => {
+        this.audioNodesBuffer.push(buffer);
+        let n = 0;
+        if( this.audioNodesBuffer.length === this.data.length ){
+          console.log(this.audioNodesData)
+          this.audioNodesBuffer.sort(this.compare);
+          this.audioNodesBuffer.forEach( buffer => {
+            let audioData = new Obj( buffer, this.audioNames[n] );
+            this.audioNodesData.push(audioData);
+            n++;
+          });
+          console.log(this.audioNodesData); //////
         }
       });
     }
     xhr.send();
   });
 
+  this.startPlay = (buffer, loopStart, loopEnd, realTime) => {
+    let audio = audioContext.createBufferSource();
+    audio.buffer = buffer;
+    audio.connect(audioContext.destination);
+    audio.loopStart = loopStart;
+    audio.loopEnd = loopEnd;
+    audio.loop = true;
+    audio.start(0, realTime);
+    return audio;
+  }
+
+  // for calculating the start point of engine sound
+  this.realTime = 0;
+  this.ratio = 0;
+
+  // Method for replaying the audios since BufferSourceNode can only be used once --> create a new one BufferSourceNode using the same buffer
+  this.play = (currentAudio) => {
+    this.ratio = player.speed / player.maxSpeed;
+
+    if( currentAudio === "startSound" ){
+      this.realTime = 1.037 * this.ratio;
+    } else if( currentAudio === "slowSound" ){
+      this.realTime = 1.037 / 10 * 3 * (1 - this.ratio);
+    }
+
+    this.loopStart = currentAudio === "startSound" ? 1.018 : 0;
+
+    for( let i = 0; i < this.audioNodesData.length - 1; i++ ){
+      this.loopEnd = currentAudio === "startSound" ? 1.037 : this.audioNodesData[i].buffer.duration;
+
+      if( this.audioNodesData[i].name === currentAudio && this.audioNodesData[i].playing === false ){
+        console.log(this.realTime);
+        this[this.audioNodesData[i].name] = this.startPlay( this.audioNodesData[i].buffer, this.loopStart, this.loopEnd, this.realTime );
+        this.audioNodesData[i].playing = true;
+      } else if( this.audioNodesData[i].name !== currentAudio && this.audioNodesData[i].playing === true ){
+        this[this.audioNodesData[i].name].disconnect(audioContext);
+        this.audioNodesData[i].playing = false;
+      }
+    }
+  }
 
 
 }
@@ -1100,6 +1173,9 @@ let initWorld = () => {
     // Countdown so player can be ready to play
     let n = 3;
     let countdown = setInterval( ()=>{
+      let countdownSound = audio.countdownSound();
+      countdownSound.start();
+      countdownSound.stop(0.5);
       if( n === 3 ){
         components.countdown = createElement("div", { className: "countdown", textContent: n }, body);
       }else {
@@ -1107,7 +1183,8 @@ let initWorld = () => {
       }
       n -= 1;
       if(n < 0 ){
-        audio.themeSong.start();
+        // audio.audioNodes[4].start(); // ths longest one -> background music
+        console.log("play");
         components.countdown.textContent = "";
         components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
         clearInterval(countdown);
