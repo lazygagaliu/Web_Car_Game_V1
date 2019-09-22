@@ -107,3 +107,11 @@
 .arrow-hidden {
   visibility: hidden;
 }
+
+
+.onoff {
+  position: absolute; top:15px; left:15px;
+  width:28px; height:25px;
+  background-image: url("./asset/imgs/off.png");
+  background-repeat: no-repeat; background-size: cover;
+}

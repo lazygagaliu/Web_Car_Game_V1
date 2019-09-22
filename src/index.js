@@ -176,3 +176,10 @@ document.body.addEventListener("keydown", e => {
 gotIt.addEventListener("click", e => {
   showControl.style.display = "none";
 });
+
+//
+document.querySelector(".onoff").addEventListener("click", e => {
+  e.target.style.backgroundImage = 'url("./asset/imgs/on.png")';
+  let bgm = document.getElementById("bgm");
+  bgm.play();
+});

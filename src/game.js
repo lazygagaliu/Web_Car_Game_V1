@@ -425,9 +425,9 @@ function Car () {
     this.cannonBody.quaternion.setFromAxisAngle( new CANNON.Vec3(0, 1, 0), 2*Math.PI/360*180 );
     world.add( this.cannonBody );
 
-    let data = JSON.parse( localStorage.getItem("chosenCar") );
-
-    this.car = this.loadModel(data.path, data.mtl, data.obj);
+    // let data = JSON.parse( localStorage.getItem("chosenCar") );
+    //
+    // this.car = this.loadModel(data.path, data.mtl, data.obj);
   }
 
   this.move = () => {
@@ -439,11 +439,15 @@ function Car () {
     // Run out of the time --> make car stop
     if( components.timeBar ){
       components.timeBarWidth = getComputedStyle(components.timeBar).width;
-      if( components.timeBarWidth === "0px" ){
-        this.movement = "stop";
+
+      if( components.timeBarWidth === "0px" && !this.finished ){
+          this.movement = "stop";
+          finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
+
       } else{
         components.runningTime();
       }
+
     } else{
       this.movement = "stop";
     }
@@ -501,7 +505,6 @@ function Car () {
         this.meter += this.meterAccelaration;
         this.num += this.numAccelaration;
         if( this.speed < this.maxSpeed ){
-          // audio.play("maxSound");
           this.speed = this.maxSpeed;
           this.meter = this.maxMeter;
           this.num = this.maxNum;
@@ -583,7 +586,6 @@ function Car () {
       }
       return;
     }
-    // else{ stopSound.pause(); }
 
 
     let x = Math.sin(this.rotation) * this.speed;
@@ -610,6 +612,12 @@ function Car () {
 
     if( this.meter === this.maxMeter ){
       // console.log(this.meter);
+      // if( !this.speedUp ){
+      //   components.needle.remove();
+      //   components.needle = createElement("div", { className: "needle" }, components.meter);
+      //   components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
+      // }
+
       components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
       components.needle.setAttribute("class", "needle vibrant");
 
@@ -835,6 +843,19 @@ function Components () {
   this.nosbarHeightNum = parseInt(this.nosBarHeight.match(/\d+/)[0]);
 
   this.timeCount = createElement("div", { className: "running-time", textContent: `00:00:00` }, body);
+  // Time Bar Wrapper
+  this.timeWrapper = createElement("div", { className: "fuel-outer" }, body);
+
+  this.elements = [
+    this.meter, this.speedNum, this.speedNumUnit, this.timeCount, this.timeWrapper
+  ];
+
+  this.showUI = () => {
+    this.elements.forEach( el => {
+      el.style.display = "block";
+    });
+    this.nosWrapper.style.display = "flex";
+  }
 
   // Method for creating running time
   this.runningTime = () => {
@@ -864,9 +885,6 @@ function Components () {
     }
     this.timeCount.textContent = `${timeShow[2]}:${timeShow[1]}:${timeShow[0]}`;
   }
-
-  // Time Bar Wrapper
-  this.timeWrapper = createElement("div", { className: "fuel-outer" }, body);
 
 }
 
@@ -976,7 +994,7 @@ function FinishLine () {
 
   this.finished = e => {
     player.finished = true;
-    finishLine.showFinishWindow();
+    finishLine.showFinishWindow( "YOUR BEST RECORD", components.timeCount.textContent );
     e.target.removeEventListener("collide", this.finished);
   }
 
@@ -1006,13 +1024,13 @@ function FinishLine () {
   }
 
   // Finish PopUp Window
-  this.showFinishWindow = () => {
+  this.showFinishWindow = ( title, content ) => {
     let finishWrapper = createElement("div", {className: "finish-wrapper"}, body);
     let recordWrapper = createElement("div", {className: "record-wrapper"}, finishWrapper);
 
     let playerRecordWrapper = createElement("div", {className: "player-record-wrapper"}, recordWrapper);
-    createElement("div", {className: "player-record", textContent: "YOUR BEST RECORD"}, playerRecordWrapper);
-    createElement("div", {className: "player-record", textContent: components.timeCount.textContent}, playerRecordWrapper);
+    createElement("div", {className: "player-record", textContent: title}, playerRecordWrapper);
+    createElement("div", {className: "player-record", textContent: content}, playerRecordWrapper);
 
     let records = createElement("div", {className: "records"}, recordWrapper);
 
@@ -1037,10 +1055,11 @@ function Audio () {
   // Audio files
   this.data = [
     "asset/audio/eminem_feat_ludacris_lil_wayne_second_chance.mp3",
-    "asset/audio/startnew.mp3",
-    "asset/audio/stopnew.ogg",
-    "asset/audio/maxdrive.mp3",
-    "asset/audio/slowdownnew.mp3"
+    "asset/audio/startnew.ogg",  // < 4
+    "asset/audio/stopnew.ogg", // 8
+    "asset/audio/maxdrive.ogg", // 20
+    "asset/audio/slowdownnew.ogg", // 6
+    "asset/audio/maxdrivenos.ogg" // 4
   ];
 
   // Store decoded audios for future use
@@ -1048,9 +1067,10 @@ function Audio () {
   this.audioNodesData = [];
   this.audioNames = [
     "startSound",
+    "maxdrivenosSound",
     "slowSound",
-    "maxSound",
     "stopSound",
+    "maxdriveSound",
     "themeSong"
   ];
 
@@ -1078,12 +1098,15 @@ function Audio () {
     this.name = name
   }
 
-  //
-  this.countdownSound = () => {
+  // Create Countdown Sound
+  this.countdownSound = f => {
     let countdownSound = audioContext.createOscillator();
     countdownSound.type = "triangle";
-    countdownSound.frequency.value = 280;
+    countdownSound.frequency.value = f;
     countdownSound.connect(audioContext.destination);
+    countdownSound.start();
+    // countdownSound.stop(1);
+    console.log("1");
     return countdownSound;
   }
 
@@ -1099,31 +1122,33 @@ function Audio () {
   }
 
   // Methed to get Audio Data
-  this.getData = this.data.forEach( url => {
-    let xhr = new XMLHttpRequest();
+  this.getData = () => {
+    this.data.forEach( url => {
+      let xhr = new XMLHttpRequest();
 
-    xhr.open( "GET", url, true );
-    xhr.responseType = "arraybuffer";
-    xhr.onload = () => {
-      let audioData = xhr.response;
-      let xhrDone = this.decode(audioData);
-      xhrDone.then( buffer => {
-        this.audioNodesBuffer.push(buffer);
-        let n = 0;
-        if( this.audioNodesBuffer.length === this.data.length ){
-          console.log(this.audioNodesData)
-          this.audioNodesBuffer.sort(this.compare);
-          this.audioNodesBuffer.forEach( buffer => {
-            let audioData = new Obj( buffer, this.audioNames[n] );
-            this.audioNodesData.push(audioData);
-            n++;
-          });
-          console.log(this.audioNodesData); //////
-        }
-      });
-    }
-    xhr.send();
-  });
+      xhr.open( "GET", url, true );
+      xhr.responseType = "arraybuffer";
+      xhr.onload = () => {
+        let audioData = xhr.response;
+        let xhrDone = this.decode(audioData);
+        xhrDone.then( buffer => {
+          this.audioNodesBuffer.push(buffer);
+          let n = 0;
+          if( this.audioNodesBuffer.length === this.data.length ){
+            console.log(this.audioNodesData)
+            this.audioNodesBuffer.sort(this.compare);
+            this.audioNodesBuffer.forEach( buffer => {
+              let audioData = new Obj( buffer, this.audioNames[n] );
+              this.audioNodesData.push(audioData);
+              n++;
+            });
+            console.log(this.audioNodesData); //////
+          }
+        });
+      }
+      xhr.send();
+    });
+  }
 
   this.startPlay = (buffer, loopStart, loopEnd, realTime) => {
     let audio = audioContext.createBufferSource();
@@ -1175,7 +1200,7 @@ function Audio () {
     player.move();
 
     cannonDebugRenderer.update();
-    box.update();
+    // box.update();
 
     // Keep player's car updated
     player.updatePhysics(driver);
@@ -1197,13 +1222,12 @@ let initWorld = () => {
   ////// Helper
   cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
 
+  // Create Audio Obj
+  audio = new Audio;
 
   // Load Car
   player = new Car;
   player.addCar();
-
-  // Load Audio
-  audio = new Audio;
 
   // Add SkyBox
   sky = new Skybox;
@@ -1218,54 +1242,126 @@ let initWorld = () => {
   wall.stickTextures();
   wall.addWall();
 
+  // Add UI to screen
+  components = new Components;
+
   // Add Checkpoints
   checkpoints = new Checkpoints;
   checkpoints.addCheckpoint();
 
-  // Add Some Elements
-  components = new Components;
-
   // Create FinishLine Obj
   finishLine = new FinishLine;
 
-  // Add Car
-  player.car.then( obj => {
-    driver = obj;
-    scene.add(obj);
-    player.updatePhysics(obj);
+  let loadCarAudio = async () => {
+    let data = JSON.parse( localStorage.getItem("chosenCar") );
+    player.car = await player.loadModel(data.path, data.mtl, data.obj);
+    console.log("load car")
+    await audio.getData();
+    driver = player.car;
+    scene.add(player.car);
+    player.updatePhysics(player.car);
+    console.log("load audio")
 
-    /// Box helper
-    box = new THREE.BoxHelper( driver, 0x000000 );
-  	scene.add( box );
-
-    // Set loading div to display none when content has loaded
     loading.style.display = "none";
 
-    // Countdown so player can be ready to play
-    let n = 3;
-    let countdown = setInterval( ()=>{
-      let countdownSound = audio.countdownSound();
-      countdownSound.start();
-      countdownSound.stop(0.5);
-      if( n === 3 ){
-        components.countdown = createElement("div", { className: "countdown", textContent: n }, body);
-      }else {
-        components.countdown.textContent = n;
-      }
-      n -= 1;
-      if(n < 0 ){
-        // audio.audioNodes[4].start(); // ths longest one -> background music
-        console.log("play");
-        components.countdown.textContent = "";
-        components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
-        clearInterval(countdown);
-        return;
-      }
-    }, 1000 );
+    // document.querySelector(".permission-wrapper").display = "block";
+    console.log("p w")
+    document.querySelector(".permission-button").addEventListener("click", e => {
+      audioContext.resume().then( () => {
+        console.log("resume success");
+        document.querySelector(".permission-wrapper").style.display = "none";
+        components.showUI();
 
-    // Render world after loading car model
-    render();
-  });
+        let n = 3;
+        let countdownSounds = [];
+        let countdown = setInterval( ()=>{
+          let countdownSound;
+          if( n === 0 ){
+            countdownSound = audio.countdownSound(800);
+          } else { countdownSound = audio.countdownSound(400); }
+
+          if( n === 3 ){
+            components.countdown = createElement("div", { className: "countdown", textContent: n }, body);
+          }else if( n > 0 ) {
+            components.countdown.textContent = n;
+          }
+
+          countdownSounds.push(countdownSound);
+          n -= 1;
+
+          if(n < -1 ){
+
+            // ths longest one -> background music
+            audio.startPlay( audio.audioNodesData[5].buffer, 0, audio.audioNodesData[5].buffer.duration, 0 );
+            console.log("play theme");
+
+            components.countdown.remove();
+            components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
+
+            countdownSounds.forEach( sound => {
+              sound.stop();
+            });
+
+            clearInterval(countdown);
+            return;
+          }
+        }, 1000 );
+
+        // Render world after loading car model
+        render();
+
+      });
+    });
+
+
+
+
+
+  }
+
+  loadCarAudio();
+
+  // Add Car
+  // player.car.then( obj => {
+  //   driver = obj;
+  //   scene.add(obj);
+  //   player.updatePhysics(obj);
+  //
+  //   /// Box helper
+  //   box = new THREE.BoxHelper( driver, 0x000000 );
+  // 	scene.add( box );
+  //
+  //   // Set loading div to display none when content has loaded
+  //   loading.style.display = "none";
+  //
+  //   // Countdown so player can be ready to play
+  //   let n = 3;
+  //   let countdown = setInterval( ()=>{
+  //     if( n === 0 ){
+  //       let countdownSound = audio.countdownSound(400);
+  //     } else { let countdownSound = audio.countdownSound(280); }
+  //
+  //     if( n === 3 ){
+  //       components.countdown = createElement("div", { className: "countdown", textContent: n }, body);
+  //     }else {
+  //       components.countdown.textContent = n;
+  //     }
+  //
+  //     n -= 1;
+  //
+  //     if(n < 0 ){
+  //       // audio.audioNodes[5].start(); // ths longest one -> background music
+  //       console.log("play");
+  //       components.countdown.textContent = "";
+  //       components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
+  //       clearInterval(countdown);
+  //       return;
+  //     }
+  //   }, 1000 );
+  //
+  //   // Render world after loading car model
+  //   render();
+  // });
 
 }
 

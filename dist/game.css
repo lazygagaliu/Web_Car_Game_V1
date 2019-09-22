@@ -15,13 +15,18 @@
   --bar-height: 0px;
   --needle-rotation: 134deg;
   --needle-vibrant: 449deg;
-  --left-time: 25s;
+  --left-time: 5s;
 }
 
 /* Fix the position of divs */
 .loading, .fuel-outer, .meter, .meter-number, .meter-unit, .n-outer,
-.countdown, .running-time, .wrapper, .permission-wrapper, .finish-wrapper {
+.countdown, .running-time, .wrapper, .permission-wrapper, .permission, .finish-wrapper {
   position: absolute;
+}
+
+/* default display none */
+.meter, .meter-number, .meter-unit, .n-outer, .running-time, .fuel-outer {
+  display: none;
 }
 
 /* Loading */
@@ -30,6 +35,7 @@
   top: 0px; left: 0px;
   background-color: black; color: #fff;
   z-index: 1000;
+  /* display: none; */
 }
 
 
@@ -38,7 +44,7 @@
   background-color: #ddd; opacity: 0.8;
   font-family: mario; font-size: 24px;
   text-align: center; line-height: 55px;
-  display: none;
+  /* display: none; */
 }
 
 /* Permission */
@@ -211,7 +217,7 @@
   z-index: 50;
 }
 .n-outer {
-  display: flex; align-items: flex-end;
+  align-items: flex-end;
   width: 30px; height: 130px;
   bottom: 32px; right: 370px;
   border-radius: 8px;
