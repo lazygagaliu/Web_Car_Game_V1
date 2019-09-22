@@ -238,7 +238,7 @@ THREE.CannonDebugRenderer.prototype = {
 
 
 /* --------- Variables --------- */
-let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints, audio;
+let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints, finishLine, audio;
 
 // Web Audio API
 let AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -370,6 +370,7 @@ function Car () {
   // States
   this.movement = "stop";
   this.speedUp = false;
+  this.finished = false;
   // Speed
   this.speed = 0;
   this.accelaration = 0.1; // nos 0.3  back -0.05
@@ -430,6 +431,10 @@ function Car () {
   }
 
   this.move = () => {
+
+    if( this.finished ){
+      this.movement = "stop";
+    }
 
     // Run out of the time --> make car stop
     if( components.timeBar ){
@@ -817,13 +822,6 @@ function Wall () {
 // Add some elements
 function Components () {
 
-  // this.getNeedleDeg = () => {
-  //   let deg = getComputedStyle(this.needle).transform;
-  //   deg = deg.split("(")[1].split(")")[0].split(",");
-  //   deg = Math.round(Math.atan2(deg[1], deg[0]) * (180/Math.PI)); // Transfer matrix number to deg
-  //   return deg;
-  // }
-
   this.meter = createElement("div", { className: "meter" }, body);
   this.needle = createElement("div", { className: "needle" }, this.meter);
 
@@ -867,22 +865,23 @@ function Components () {
     this.timeCount.textContent = `${timeShow[2]}:${timeShow[1]}:${timeShow[0]}`;
   }
 
+  // Time Bar Wrapper
   this.timeWrapper = createElement("div", { className: "fuel-outer" }, body);
-  // this.timeBar = createElement("div", { className: "fuel-inner" }, this.timeWrapper);
+
 }
 
 // Add the Checkpoints
 function Checkpoints () {
   // coordinates of Checkpoints
   this.data = [
-    {x: 200, z: -100, t: 25},
-    {x: 1350, z: -850, t: 10},
-    {x: 1350, z: 950, t: 10},
-    {s: 90, x: 50, z: 1350, t: 10},
-    {s: 90, x: -1050, z: 1050, t: 10},
-    {x: -1350, z: 50, t: 20},
-    {x: -350, z: -1150, t: 10},
-    {s: 45, x: -150, z: 550, t: 10},
+    {x: 200, z: -100, t: 30},
+    {x: 1350, z: -850, t: 20},
+    {x: 1350, z: 950, t: 20},
+    {s: 90, x: 50, z: 1350, t: 20},
+    {s: 90, x: -1050, z: 1050, t: 20},
+    {x: -1350, z: 50, t: 25},
+    {x: -350, z: -1150, t: 30},
+    {s: 45, x: -150, z: 550, t: 30, last: true},
   ];
   this.checkpoints = [];
   this.aniNum = 0;
@@ -902,7 +901,7 @@ function Checkpoints () {
   }
 
   // Method for creating the CANNON Checkpoint
-  this.createBody = (s, x, z, t) => {
+  this.createBody = (s, x, z, t, last) => {
     switch (s) {
       case 90:
       this.cannonBody = new CANNON.Body({
@@ -930,6 +929,9 @@ function Checkpoints () {
     }
     this.cannonBody.collisionResponse = false;
     this.cannonBody.time = t;
+    if(last){
+      this.cannonBody.last = last;
+    }
     this.cannonBody.addEventListener("collide", this.collision);
     return this.cannonBody;
   }
@@ -945,6 +947,9 @@ function Checkpoints () {
     components.timeBar.remove();
     components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
     components.timeBar.style.setProperty("--left-time", `${e.target.time}s`);
+    if( e.target.last ){
+      finishLine.addLine();
+    }
     e.target.removeEventListener("collide", this.collision);
   }
 
@@ -952,7 +957,7 @@ function Checkpoints () {
   this.addCheckpoint = () => {
     this.data.forEach( mesh => {
       let checkpoint = this.createCheckpoint();
-      let body = this.createBody(mesh.s, mesh.x, mesh.z, mesh.t);
+      let body = this.createBody(mesh.s, mesh.x, mesh.z, mesh.t, mesh.last);
       world.add( body );
       scene.add( checkpoint );
       this.checkpoints.push( checkpoint );
@@ -965,6 +970,66 @@ function Checkpoints () {
       mesh.scale.y = Math.abs( Math.sin(n) );
     });
   }
+}
+
+function FinishLine () {
+
+  this.finished = e => {
+    player.finished = true;
+    finishLine.showFinishWindow();
+    e.target.removeEventListener("collide", this.finished);
+  }
+
+  // CANNON Part
+  this.cannonShape = new CANNON.Box( new CANNON.Vec3( 100, 13, 3 ) );
+  this.cannonBody = new CANNON.Body({
+    mass: 0,
+    position: new CANNON.Vec3( 200, 10, -50 ),
+    shape: this.cannonShape,
+  });
+  this.cannonBody.collisionResponse = false;
+  this.cannonBody.addEventListener("collide", this.finished );
+
+  // THREE part
+  this.threeTexture = loader.load("asset/imgs/finishline.png");
+  this.threeTexture.wrapS = this.threeTexture.wrapT = THREE.RepeatWrapping;
+  this.threeTexture.repeat.set( 1, 6 );
+  this.threeMaterial = new THREE.MeshLambertMaterial( { map: this.threeTexture } );
+  this.line = new THREE.Mesh( new THREE.PlaneBufferGeometry( 200, 20 ), this.threeMaterial );
+  this.line.position.set( 200 , - 10, -50 );
+  this.line.rotation.x = - Math.PI / 2;
+  this.line.receiveShadow = true;
+
+  this.addLine = () => {
+    world.add( this.cannonBody );
+    scene.add( this.line );
+  }
+
+  // Finish PopUp Window
+  this.showFinishWindow = () => {
+    let finishWrapper = createElement("div", {className: "finish-wrapper"}, body);
+    let recordWrapper = createElement("div", {className: "record-wrapper"}, finishWrapper);
+
+    let playerRecordWrapper = createElement("div", {className: "player-record-wrapper"}, recordWrapper);
+    createElement("div", {className: "player-record", textContent: "YOUR BEST RECORD"}, playerRecordWrapper);
+    createElement("div", {className: "player-record", textContent: components.timeCount.textContent}, playerRecordWrapper);
+
+    let records = createElement("div", {className: "records"}, recordWrapper);
+
+    let finishOptions = createElement("div", {className: "finish-options"}, recordWrapper);
+    let restart = createElement("div", {className: "finish-option", textContent: "RESTART"}, finishOptions);
+    let exit = createElement("div", {className: "finish-option", textContent: "EXIT"}, finishOptions);
+
+    restart.addEventListener("click", e => {
+      location.reload();
+    });
+
+    exit.addEventListener("click", e => {
+      location.href = "./";
+    });
+
+  }
+
 }
 
 // Add audios
@@ -1160,6 +1225,9 @@ let initWorld = () => {
   // Add Some Elements
   components = new Components;
 
+  // Create FinishLine Obj
+  finishLine = new FinishLine;
+
   // Add Car
   player.car.then( obj => {
     driver = obj;
@@ -1195,18 +1263,6 @@ let initWorld = () => {
       }
     }, 1000 );
 
-    // let n = 3;
-    // let countdown = setInterval( ()=>{
-    //   createElement("div", { className: "countdown", textContent: n }, body);
-    //   n -= 1;
-    //   if(n < 0 ){
-    //     console.log("okok");
-    //     components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
-    //     clearInterval(countdown);
-    //     return;
-    //   }
-    // }, 1000 );
-
     // Render world after loading car model
     render();
   });
@@ -1237,9 +1293,11 @@ document.body.addEventListener( "keydown", e => {
     }
     break;
 
-    // case 73: // I for test
+    case 73: // I for test
     // player.speedUp = false;
-    // break;
+    // components.showFinishWindow();
+    finishLine.addLine();
+    break;
   }
 } );
 document.body.addEventListener( "keyup", e => {

@@ -2,6 +2,14 @@
   font-family: mario;
   src: url("asset/font/SuperMario256.ttf");
 }
+@font-face {
+  font-family: destroy;
+  src: url("asset/font/VehicleBreaksDown-Regular.ttf");
+}
+@font-face {
+  font-family: infect;
+  src: url("asset/font/INFECTED.ttf");
+}
 
 :root {
   --bar-height: 0px;
@@ -12,7 +20,7 @@
 
 /* Fix the position of divs */
 .loading, .fuel-outer, .meter, .meter-number, .meter-unit, .n-outer,
-.countdown, .running-time, .wrapper, .permission {
+.countdown, .running-time, .wrapper, .permission-wrapper, .finish-wrapper {
   position: absolute;
 }
 
@@ -25,11 +33,12 @@
 }
 
 
-.wrapper {
-  width: 100%; height: 100%;
+.permission-wrapper {
+  width: 100%; height: 100%; top:0px; left:0px;
   background-color: #ddd; opacity: 0.8;
   font-family: mario; font-size: 24px;
   text-align: center; line-height: 55px;
+  display: none;
 }
 
 /* Permission */
@@ -59,6 +68,57 @@
 
 .permission-button:hover {
   font-size: 35px;
+}
+
+
+/* Finish PopUp Window */
+.finish-wrapper {
+  width: 100%; height: 100%; top:0px; left:0px;
+  background-color: #ddd; opacity: 0.8;
+}
+.record-wrapper {
+  width: 500px; height: 375px;
+  position: absolute; top: 100px; left: 33.33%;
+  background-color: #fff;
+  border-radius: 12px;
+  border: 3px solid #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  padding: 20px 0px;
+  text-align: center; line-height: 55px; font-family: destroy;
+}
+
+.player-record-wrapper {
+  font-size: 36px;
+  width: 90%;
+}
+
+.finish-options, .records, .record {
+  display: flex; width: 90%;
+}
+
+.records {
+  flex-direction: column;
+  line-height: 20px;
+}
+
+.record {
+  width: 100%;
+  justify-content: space-between;
+}
+.item {
+  width: 33%;
+}
+
+.finish-option {
+  width: 180px; height: 50px;
+  border-radius: 8px; border: 3px solid #000;
+  cursor: pointer;
+  font-size: 24px; letter-spacing: 1px;
+  margin: 0px 20px;
+}
+
+.finish-option:hover {
+  background-color: steelblue;
 }
 
 
