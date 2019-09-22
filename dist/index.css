@@ -2,6 +2,14 @@
   font-family: mario;
   src: url("asset/font/SuperMario256.ttf");
 }
+@font-face {
+  font-family: destroy;
+  src: url("asset/font/VehicleBreaksDown-Regular.ttf");
+}
+@font-face {
+  font-family: infect;
+  src: url("asset/font/INFECTED.ttf");
+}
 
 .fade-wrapper {
   position: absolute;
@@ -35,15 +43,54 @@
   margin-right: 10px;
 }
 .control-read {
-  font-size: 28px;
-  font-family: mario;
+  font-size: 36px;
+  font-family: destroy;
   cursor: pointer;
 }
 
+.name {
+  font-family: destroy;
+  font-size: 130px;
+  color: #fff; /* #fff */
+  position: absolute;
+  top: 50px;
+  left: 19%;
+}
+
+
+.car-options-wrapper {
+  position: absolute; bottom: 20px; left: 20px;
+  width: 400px; height: 160px;
+  border: 2px dotted darkturquoise;
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: space-evenly;
+}
+
+.car-option {
+  width: 160px; height: 120px;
+  border-radius: 12px;
+}
+
+.car-1 {
+  background: radial-gradient(white 5%, #111 90%), url(./asset/imgs/chevrolet.png);
+  background-size: cover;
+  background-blend-mode: multiply;
+}
+
+.car-2 {
+  background-image: radial-gradient(white 5%, #111 90%), url("./asset/imgs/lam.png");
+  background-size: cover;
+  background-blend-mode: multiply;
+}
+
+.selected {
+  border: 3px solid orange;
+}
+
 .options {
-  font-family: mario;
-  font-size: 36px;
-  color: #fff;
+  font-family: infect;
+  font-size: 70px;
+  color: darkturquoise; /* #fff */
   position: absolute;
   bottom: 20px;
   right: 40px;
@@ -54,7 +101,7 @@
 }
 .options img {
   transform: rotate(47deg);
-  width: 45px;
+  width: 50px;
   margin: 0px 20px;
 }
 .arrow-hidden {

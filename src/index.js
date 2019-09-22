@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from "cannon";
 import { MTLLoader, OBJLoader } from "three-obj-mtl-loader";
+import FBXLoader from "three-fbx-loader"; //////////////
 import OrbitControls from 'three-orbitcontrols';
 import * as PostProcessing from "postprocessing";
 
@@ -9,26 +10,42 @@ let renderer, scene, camera, light, controls;
 let arrows = document.querySelectorAll("img");
 let showControl = document.querySelector(".fade-wrapper");
 let gotIt = document.querySelector(".control-read");
+let carOptions = document.querySelectorAll(".car-option");
 
-let car;
+
+let car1, car2;
+let cars = [];
+
+let carData = [
+  {
+    path: "asset/chevrolet/",
+    mtl: "chevrolet.mtl",
+    obj: "chevrolet.obj"
+  },
+  {
+    path: "asset/lam/",
+    mtl: "Lamborghini.mtl",
+    obj: "Lamborghini.obj"
+  }
+];
 
 // Load Car Model
-let load = () => {
+let load = ( path, mtl, obj ) => {
   return new Promise( (resolve, reject) => {
     let mtlLoader = new MTLLoader();
-    mtlLoader.setTexturePath("asset/chevrolet/");
-    mtlLoader.setPath("asset/chevrolet/");
-    mtlLoader.load("chevrolet.mtl", materials => {
+    mtlLoader.setTexturePath(path);
+    mtlLoader.setPath(path);
+    mtlLoader.load(mtl, materials => {
       materials.preload();
       let objLoader = new OBJLoader();
       objLoader.setMaterials(materials);
-      objLoader.setPath("asset/chevrolet/");
-      objLoader.load("new.obj", obj => {
-        obj.scale.set(0.5, 0.5, 0.5);
-        obj.castShadow = true;
-        obj.receiveShadow = false;
-        scene.add(obj);
-        resolve(obj);
+      objLoader.setPath(path);
+      objLoader.load(obj, object => {
+        object.scale.set(0.5, 0.5, 0.5);
+        object.castShadow = true;
+        object.receiveShadow = false;
+        // scene.add(object);
+        resolve(object);
       });
     });
   });
@@ -47,10 +64,10 @@ let init = () => {
   scene = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 3000 );
-  camera.position.set( 100, 40, 270 );
+  camera.position.set( 100, 30, 200 );
   scene.add(camera);
 
-  // let light1 = new THREE.PointLight( 0xffffff, 2 );
+  // let light1 = new THREE.PointLight( 0xffffff, 1 );
   // light1.position.set( 200, 200, 0 );
   // scene.add(light1);
   // let light2 = new THREE.PointLight( 0xffffff, 2 );
@@ -70,15 +87,15 @@ let init = () => {
   light5.penumbra = 0.4;
   light5.decay = 1.2;
 
-  // light5.shadow.mapSize.width = 1000;  // default
-  // light5.shadow.mapSize.height = 100; // default
-  // light5.shadow.camera.near = 1;       // default
-  // light5.shadow.camera.far = 1000;
+  light5.shadow.mapSize.width = 1000;  // default
+  light5.shadow.mapSize.height = 100; // default
+  light5.shadow.camera.near = 1;       // default
+  light5.shadow.camera.far = 1000;
   scene.add(light5);
-  var helper = new THREE.CameraHelper( light5.shadow.camera );
-  scene.add( helper );
+  // var helper = new THREE.CameraHelper( light5.shadow.camera );
+  // scene.add( helper );
 
-  let spotLightHelper = new THREE.SpotLightHelper( light5 );
+  // let spotLightHelper = new THREE.SpotLightHelper( light5 );
   // scene.add( spotLightHelper );
 
   let composer = new PostProcessing.EffectComposer(renderer);
@@ -98,19 +115,49 @@ let init = () => {
   mshFloor.receiveShadow = true;
   scene.add(mshFloor);
 
+  let rotate = car => {
+    car.rotation.y -= 0.005;
+  }
+
   let render = () => {
     requestAnimationFrame(render);
     // renderer.render( scene, camera );
-    helper.update();
+    // helper.update();
     composer.render();
-    car.rotation.y -= 0.005;   // Make car rotate or not ?!
+    cars.forEach( car => {
+      rotate(car);
+    });
   }
 
-  let loadCar = load();
-  loadCar.then( obj => {
-    car = obj;
-    render();
-  });
+  let addCars = async carData => {
+    let loadCars = carData.map( async data => {
+      let car = await load( data.path, data.mtl, data.obj );
+      cars.push(car);
+      scene.add(car);
+      if( cars[1] ){
+        cars[1].visible = false;
+      }
+      render();
+      return car;
+    });
+  };
+
+  addCars(carData);
+
+
+  // let loadCar2 = load( carData[1].path, carData[1].mtl, carData[1].obj );
+  // let loadCar1 = load( carData[0].path, carData[0].mtl, carData[0].obj );
+
+  // loadCar1.then( obj => {
+  //   car1 = obj;
+  //   console.log(car1);
+  //   scene.add(car1);
+  //   render();
+  // });
+  //
+  // loadCar2.then( obj => {
+  //   car2 = obj;
+  // });
 
 }
 
@@ -127,6 +174,26 @@ document.body.addEventListener("keydown", e => {
     location.href = "game.html";
   } else if(e.keyCode === 13 && arrows[1].classList.contains("arrow-hidden")){
     showControl.style.display = "block";
+  } else if( e.keyCode === 37 || e.keyCode === 39 ){
+    cars.forEach( car => {
+      if( car.visible === true ){
+        car.visible = false;
+      } else{ car.visible = true; }
+    });
+    carOptions.forEach( option => {
+      if( option.classList.contains("selected") ){
+        option.classList.remove("selected");
+      }else {
+        option.classList.add("selected");
+      }
+    });
+  }
+
+  else if(e.keyCode === 73 ){   // for testing
+    car1.visible = false;
+  } else if(e.keyCode === 74 ){
+    car1.visible = true;
+    // scene.add(car2);
   }
 });
 
