@@ -423,7 +423,10 @@ function Car () {
   this.addCar = () => {
     this.cannonBody.quaternion.setFromAxisAngle( new CANNON.Vec3(0, 1, 0), 2*Math.PI/360*180 );
     world.add( this.cannonBody );
-    this.car = this.loadModel("asset/chevrolet/", "chevrolet.mtl", "new.obj");
+
+    let data = JSON.parse( localStorage.getItem("chosenCar") );
+
+    this.car = this.loadModel(data.path, data.mtl, data.obj);
   }
 
   this.move = () => {

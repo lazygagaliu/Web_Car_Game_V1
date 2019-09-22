@@ -12,17 +12,17 @@ let showControl = document.querySelector(".fade-wrapper");
 let gotIt = document.querySelector(".control-read");
 let carOptions = document.querySelectorAll(".car-option");
 
-
-let car1, car2;
 let cars = [];
 
 let carData = [
   {
+    id: 0,
     path: "asset/chevrolet/",
     mtl: "chevrolet.mtl",
     obj: "chevrolet.obj"
   },
   {
+    id: 1,
     path: "asset/lam/",
     mtl: "Lamborghini.mtl",
     obj: "Lamborghini.obj"
@@ -67,19 +67,6 @@ let init = () => {
   camera.position.set( 100, 30, 200 );
   scene.add(camera);
 
-  // let light1 = new THREE.PointLight( 0xffffff, 1 );
-  // light1.position.set( 200, 200, 0 );
-  // scene.add(light1);
-  // let light2 = new THREE.PointLight( 0xffffff, 2 );
-  // light2.position.set( 0, 200, -100 );
-  // scene.add(light2);
-  // let light3 = new THREE.PointLight( 0xffffff, 2 );
-  // light3.position.set( 200, 200, 0 );
-  // scene.add(light3);
-  // let light4 = new THREE.PointLight( 0xffffff, 2 );
-  // light4.position.set( 0, 200, 100 );
-  // scene.add(light4);
-
   let light5 = new THREE.SpotLight( 0xfffff0, 2);
   light5.position.set( 100, 300, 60 );
   light5.castShadow = true;
@@ -92,11 +79,6 @@ let init = () => {
   light5.shadow.camera.near = 1;       // default
   light5.shadow.camera.far = 1000;
   scene.add(light5);
-  // var helper = new THREE.CameraHelper( light5.shadow.camera );
-  // scene.add( helper );
-
-  // let spotLightHelper = new THREE.SpotLightHelper( light5 );
-  // scene.add( spotLightHelper );
 
   let composer = new PostProcessing.EffectComposer(renderer);
   let effectPass = new PostProcessing.EffectPass( camera, new PostProcessing.BloomEffect() );
@@ -121,8 +103,6 @@ let init = () => {
 
   let render = () => {
     requestAnimationFrame(render);
-    // renderer.render( scene, camera );
-    // helper.update();
     composer.render();
     cars.forEach( car => {
       rotate(car);
@@ -137,27 +117,15 @@ let init = () => {
       if( cars[1] ){
         cars[1].visible = false;
       }
+
+      localStorage.setItem("chosenCar", JSON.stringify(carData[0]));
+
       render();
       return car;
     });
   };
 
   addCars(carData);
-
-
-  // let loadCar2 = load( carData[1].path, carData[1].mtl, carData[1].obj );
-  // let loadCar1 = load( carData[0].path, carData[0].mtl, carData[0].obj );
-
-  // loadCar1.then( obj => {
-  //   car1 = obj;
-  //   console.log(car1);
-  //   scene.add(car1);
-  //   render();
-  // });
-  //
-  // loadCar2.then( obj => {
-  //   car2 = obj;
-  // });
 
 }
 
@@ -175,10 +143,23 @@ document.body.addEventListener("keydown", e => {
   } else if(e.keyCode === 13 && arrows[1].classList.contains("arrow-hidden")){
     showControl.style.display = "block";
   } else if( e.keyCode === 37 || e.keyCode === 39 ){
+    let chosenCar = JSON.parse( localStorage.getItem("chosenCar") );
+    carData.forEach( car => {
+      if( chosenCar.id === 0 ){
+        localStorage.setItem("chosenCar", JSON.stringify(carData[1]));
+        console.log(localStorage);
+      }else if( chosenCar.id === 1 ){
+        localStorage.setItem("chosenCar", JSON.stringify(carData[0]));
+        console.log(localStorage);
+      }
+    });
+
     cars.forEach( car => {
       if( car.visible === true ){
         car.visible = false;
-      } else{ car.visible = true; }
+      } else{
+        car.visible = true;
+      }
     });
     carOptions.forEach( option => {
       if( option.classList.contains("selected") ){
@@ -189,12 +170,6 @@ document.body.addEventListener("keydown", e => {
     });
   }
 
-  else if(e.keyCode === 73 ){   // for testing
-    car1.visible = false;
-  } else if(e.keyCode === 74 ){
-    car1.visible = true;
-    // scene.add(car2);
-  }
 });
 
 // Close the controls instruction window
