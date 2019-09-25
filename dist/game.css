@@ -176,7 +176,7 @@
 }
 .needle {
   width: 200px; height: 200px;
-  background-image: url("../asset/imgs/needle.png");
+  background-image: url("./asset/imgs/needle.png");
   background-repeat: no-repeat;
   background-size: cover;
   transform: rotate( var(--needle-rotation) );
