@@ -1,7 +1,5 @@
 import * as THREE from 'three';
-import * as CANNON from "cannon";
 import { MTLLoader, OBJLoader } from "three-obj-mtl-loader";
-import FBXLoader from "three-fbx-loader"; //////////////
 import OrbitControls from 'three-orbitcontrols';
 import * as PostProcessing from "postprocessing";
 
@@ -11,6 +9,11 @@ let arrows = document.querySelectorAll("img");
 let showControl = document.querySelector(".fade-wrapper");
 let gotIt = document.querySelector(".control-read");
 let carOptions = document.querySelectorAll(".car-option");
+
+let bgm = document.getElementById("bgm");
+bgm.playing = false;
+let clickLr = document.getElementById("clicklr");
+let clickUd = document.getElementById("clickud");
 
 let cars = [];
 
@@ -135,6 +138,7 @@ init();
 // Options
 document.body.addEventListener("keydown", e => {
   if(e.keyCode === 38 || e.keyCode === 40){
+    clickud.play();
     arrows.forEach(arrow=>{
       arrow.classList.toggle("arrow-hidden");
     });
@@ -143,6 +147,7 @@ document.body.addEventListener("keydown", e => {
   } else if(e.keyCode === 13 && arrows[1].classList.contains("arrow-hidden")){
     showControl.style.display = "block";
   } else if( e.keyCode === 37 || e.keyCode === 39 ){
+    clickLr.play();
     let chosenCar = JSON.parse( localStorage.getItem("chosenCar") );
     carData.forEach( car => {
       if( chosenCar.id === 0 ){
@@ -177,9 +182,16 @@ gotIt.addEventListener("click", e => {
   showControl.style.display = "none";
 });
 
-//
+// Play the background music
 document.querySelector(".onoff").addEventListener("click", e => {
-  e.target.style.backgroundImage = 'url("./asset/imgs/on.png")';
-  let bgm = document.getElementById("bgm");
-  bgm.play();
+  if( !bgm.playing ){
+    e.target.style.backgroundImage = 'url("./asset/imgs/on.png")';
+    bgm.play();
+    bgm.playing = true;
+  } else {
+    e.target.style.backgroundImage = 'url("./asset/imgs/off.png")';
+    bgm.pause();
+    bgm.playing = false;
+  }
+
 });

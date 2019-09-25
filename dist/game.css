@@ -35,9 +35,9 @@
   top: 0px; left: 0px;
   background-color: black; color: #fff;
   z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
   /* display: none; */
 }
-
 
 .permission-wrapper {
   width: 100%; height: 100%; top:0px; left:0px;
@@ -246,7 +246,7 @@
 
 /* Running Time */
 .running-time {
-  font-size: 30px;
+  font-size: 30px; font-family: destroy;
   top: 5px; left: 20px;
   opacity: 0.8;
 }

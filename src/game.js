@@ -264,7 +264,7 @@ const map = [
   	{c:2}, {c:2}, {c:1, s:"ld"}, {c:1, s:"ru"}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:1, s:"ld"}, {c:1, s:"rd"}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:1}, {c:0}, {c:1},
   	{c:2}, {c:2}, {c:2}, {c:1, s:"ld"}, {c:1, s:"ru"}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1},
   	{c:2}, {c:2}, {c:2}, {c:2}, {}, {c:1, s:"ru"}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:4}, {c:4}, {c:4}, {c:4}, {c:4}, {c:1}, {c:0}, {c:1},
-  	{c:2}, {c:2}, {c:2}, {c:2}, {c:1, s:"lu"}, {c:1, s:"rd"}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:3}, {c:3}, {c:3}, {c:3}, {c:3}, {c:0}, {c:1},
+  	{c:2}, {c:2}, {c:2}, {c:2}, {c:1, s:"lu"}, {c:1, s:"rd"}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:3}, {c:3}, {c:3}, {c:3}, {c:1}, {c:0}, {c:1},
   	{c:2}, {c:2}, {c:2}, {c:1, s:"lu"}, {c:1, s:"rd"}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:4}, {c:4}, {c:4}, {c:4}, {c:1}, {c:0}, {c:1},
   	{c:2}, {c:2}, {c:1, s:"lu"}, {c:1, s:"rd"}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:4}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1},
   	{c:2}, {c:1, s:"lu"}, {c:1, s:"rd"}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:4}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1},
@@ -272,8 +272,8 @@ const map = [
   	{c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:4}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1},
   	{c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:4}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1},
   	{c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:4}, {c:4}, {c:4}, {c:4}, {c:1}, {c:0}, {c:1},
-  	{c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:3}, {c:3}, {c:3}, {c:3}, {c:3}, {c:0}, {c:1},
-  	{c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:3}, {c:3}, {c:3}, {c:3}, {c:3}, {c:0}, {c:1},
+  	{c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:3}, {c:3}, {c:3}, {c:3}, {c:1}, {c:0}, {c:1},
+  	{c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:4}, {c:3}, {c:3}, {c:3}, {c:3}, {c:3}, {c:1}, {c:0}, {c:1},
   	{c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1, s:"ru"}, {c:2}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:4}, {c:4}, {c:4}, {c:4}, {c:4}, {c:1}, {c:0}, {c:1},
   	{c:1}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1, s:"ld"}, {c:0}, {c:1, s:"ru"}, {c:2}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1},
   	{c:1}, {c:0}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:2}, {c:2}, {c:2}, {c:1, s:"ld"}, {c:0}, {c:1, s:"ru"}, {c:1}, {c:0}, {c:0}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:0}, {c:1},
@@ -336,7 +336,7 @@ let initThree = () => {
   axes = new THREE.AxisHelper(800);
 
   // scene.add(axes);
-  // const controls = new OrbitControls(camera, renderer.domElement);
+  const controls = new OrbitControls(camera, renderer.domElement);
 }
 
 // Create Element to render on the screen
@@ -367,10 +367,13 @@ function Car () {
     material: this.cannonMaterial
   });
 
-  // States
+  // Game state
+  this.finished = false;
+  this.failed = false;
+
+  // Car States
   this.movement = "stop";
   this.speedUp = false;
-  this.finished = false;
   // Speed
   this.speed = 0;
   this.accelaration = 0.1; // nos 0.3  back -0.05
@@ -424,10 +427,6 @@ function Car () {
   this.addCar = () => {
     this.cannonBody.quaternion.setFromAxisAngle( new CANNON.Vec3(0, 1, 0), 2*Math.PI/360*180 );
     world.add( this.cannonBody );
-
-    // let data = JSON.parse( localStorage.getItem("chosenCar") );
-    //
-    // this.car = this.loadModel(data.path, data.mtl, data.obj);
   }
 
   this.move = () => {
@@ -442,7 +441,7 @@ function Car () {
 
       if( components.timeBarWidth === "0px" && !this.finished ){
           this.movement = "stop";
-          finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
+          this.failed = true;
 
       } else{
         components.runningTime();
@@ -500,6 +499,7 @@ function Car () {
 
       case "back":
       if( this.speed <= 0 ){
+        audio.play("startSound");
         console.log("back");
         this.speed += this.accelaration;
         this.meter += this.meterAccelaration;
@@ -511,8 +511,7 @@ function Car () {
         }
 
       } else {
-        console.log("brake");
-        audio.play("slowSound");
+        console.log("brake");        
         this.speed -= this.brake;
         this.meter -= this.meterBrake;
         this.num -= this.numBrake;
@@ -574,6 +573,10 @@ function Car () {
     }
 
     if( this.speed === 0 ){
+      if( this.failed ){
+        finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
+      }
+
       components.nosBar.classList.remove("accumulation");
       if( !this.speedUp ){
         components.nosBar.style.setProperty("--bar-height", components.nosBarHeight);
@@ -718,7 +721,7 @@ function Wall () {
   // Methed for creating the THREE wall in right size
   this.createWall = s => {
     switch(s){
-      case "lu": //|| "rd" || "ld" || "ru":
+      case "lu":
       this.wall = new THREE.Mesh( this.geometryS, this.textures );
       break;
       case "rd":
@@ -998,11 +1001,11 @@ function FinishLine () {
     e.target.removeEventListener("collide", this.finished);
   }
 
-  // CANNON Part
+  // CANNON Part   ////// Make it less width
   this.cannonShape = new CANNON.Box( new CANNON.Vec3( 100, 13, 3 ) );
   this.cannonBody = new CANNON.Body({
     mass: 0,
-    position: new CANNON.Vec3( 200, 10, -50 ),
+    position: new CANNON.Vec3( 200, 10, 0 ),
     shape: this.cannonShape,
   });
   this.cannonBody.collisionResponse = false;
@@ -1013,8 +1016,8 @@ function FinishLine () {
   this.threeTexture.wrapS = this.threeTexture.wrapT = THREE.RepeatWrapping;
   this.threeTexture.repeat.set( 1, 6 );
   this.threeMaterial = new THREE.MeshLambertMaterial( { map: this.threeTexture } );
-  this.line = new THREE.Mesh( new THREE.PlaneBufferGeometry( 200, 20 ), this.threeMaterial );
-  this.line.position.set( 200 , - 10, -50 );
+  this.line = new THREE.Mesh( new THREE.PlaneBufferGeometry( 200, 60 ), this.threeMaterial );
+  this.line.position.set( 200 , - 10, 30 );
   this.line.rotation.x = - Math.PI / 2;
   this.line.receiveShadow = true;
 
@@ -1105,7 +1108,6 @@ function Audio () {
     countdownSound.frequency.value = f;
     countdownSound.connect(audioContext.destination);
     countdownSound.start();
-    // countdownSound.stop(1);
     console.log("1");
     return countdownSound;
   }
@@ -1172,7 +1174,7 @@ function Audio () {
     if( currentAudio === "startSound" ){
       this.realTime = 1.037 * this.ratio;
     } else if( currentAudio === "slowSound" ){
-      this.realTime = 1.037 / 10 * 3 * (1 - this.ratio);
+      this.realTime = 1.037 / 3 * 10 * (1 - this.ratio);
     }
 
     this.loopStart = currentAudio === "startSound" ? 1.018 : 0;
@@ -1264,7 +1266,6 @@ let initWorld = () => {
 
     loading.style.display = "none";
 
-    // document.querySelector(".permission-wrapper").display = "block";
     console.log("p w")
     document.querySelector(".permission-button").addEventListener("click", e => {
       audioContext.resume().then( () => {
@@ -1313,55 +1314,9 @@ let initWorld = () => {
       });
     });
 
-
-
-
-
   }
 
   loadCarAudio();
-
-  // Add Car
-  // player.car.then( obj => {
-  //   driver = obj;
-  //   scene.add(obj);
-  //   player.updatePhysics(obj);
-  //
-  //   /// Box helper
-  //   box = new THREE.BoxHelper( driver, 0x000000 );
-  // 	scene.add( box );
-  //
-  //   // Set loading div to display none when content has loaded
-  //   loading.style.display = "none";
-  //
-  //   // Countdown so player can be ready to play
-  //   let n = 3;
-  //   let countdown = setInterval( ()=>{
-  //     if( n === 0 ){
-  //       let countdownSound = audio.countdownSound(400);
-  //     } else { let countdownSound = audio.countdownSound(280); }
-  //
-  //     if( n === 3 ){
-  //       components.countdown = createElement("div", { className: "countdown", textContent: n }, body);
-  //     }else {
-  //       components.countdown.textContent = n;
-  //     }
-  //
-  //     n -= 1;
-  //
-  //     if(n < 0 ){
-  //       // audio.audioNodes[5].start(); // ths longest one -> background music
-  //       console.log("play");
-  //       components.countdown.textContent = "";
-  //       components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
-  //       clearInterval(countdown);
-  //       return;
-  //     }
-  //   }, 1000 );
-  //
-  //   // Render world after loading car model
-  //   render();
-  // });
 
 }
 
