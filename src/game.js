@@ -336,7 +336,7 @@ let initThree = () => {
   axes = new THREE.AxisHelper(800);
 
   // scene.add(axes);
-  const controls = new OrbitControls(camera, renderer.domElement);
+  // const controls = new OrbitControls(camera, renderer.domElement);
 }
 
 // Create Element to render on the screen
@@ -511,7 +511,7 @@ function Car () {
         }
 
       } else {
-        console.log("brake");        
+        console.log("brake");
         this.speed -= this.brake;
         this.meter -= this.meterBrake;
         this.num -= this.numBrake;
