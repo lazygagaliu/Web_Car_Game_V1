@@ -169,7 +169,7 @@
 .meter {
   bottom: 30px; right: 50px;
   width: 200px; height: 200px;
-  background-image: url("../asset/imgs/meter.png");
+  background-image: url("./asset/imgs/meter.png");
   background-repeat: no-repeat;
   background-size: cover;
   opacity: 0.75;
