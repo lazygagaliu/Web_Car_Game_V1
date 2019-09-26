@@ -158,7 +158,7 @@
   }
   .car-options-outer {
     position: absolute;
-    top: 140px;
+    top: 160px;
     width: 100%;
     height: 100%;
     display: flex;
@@ -178,5 +178,9 @@
 @media (max-width: 500px) {
   .name {
     font-size: 60px;
+    margin: 50px 0px;
+  }
+  .options {
+    font-size: 35px;
   }
 }

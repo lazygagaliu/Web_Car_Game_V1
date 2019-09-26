@@ -429,8 +429,10 @@ function Car () {
     world.add( this.cannonBody );
   }
 
+  // NOS effect objs
   this.speedUpObjs = [];
 
+  // Objs for adding NOS effect
   this.speedUpPoints = function SpeedUpPoints(x, z) {
     // speedUpAnimation data
     this.pointsNum = 100;
@@ -492,7 +494,7 @@ function Car () {
      }
   }
 
-
+  // Movement of Car
   this.move = () => {
 
     if( this.finished ){
@@ -515,16 +517,9 @@ function Car () {
       this.movement = "stop";
     }
 
-    // if( this.speedUp && speedUpPoints && speedUpPoints.objects.length > 5 ){
-    //   speedUpPoints.destroy();
-    // }
-    // else if( !this.speedUp && speedUpPoints && speedUpPoints.objects.length !== 0 ){
-    //   speedUpPoints.destroy();
-    // }
-
     // use NOS -- SpeedUp -> true ----- change some states for nos
     if( this.speedUp ){
-      // audio.play("rocket");
+      if( player.speedUpObjs.length < 5 )
       speedUpPoints = new this.speedUpPoints(
         driver.position.x + Math.sin(this.rotation)*10, driver.position.z + Math.cos(this.rotation)*10
       );
@@ -545,7 +540,6 @@ function Car () {
     } else {
       if(speedUpPoints && this.speedUpObjs.length !== 0){
         speedUpPoints.destroy();
-        console.log("destroy");
       }
       this.accelaration = 0.1;
       this.maxSpeed = 4;
@@ -563,8 +557,6 @@ function Car () {
         this.meter += this.meterAccelaration;
         this.num += this.numAccelaration;
         if( this.speed > this.maxSpeed ){
-          // audio.play("maxdriveSound");
-          // audio.stopPlay();
           this.speed = this.maxSpeed;
           this.meter = this.maxMeter;
           this.num = this.maxNum;
@@ -581,7 +573,6 @@ function Car () {
       case "back":
       if( this.speed <= 0 ){
         audio.play("startSound");
-        console.log("back");
         this.speed += this.accelaration;
         this.meter += this.meterAccelaration;
         this.num += this.numAccelaration;
@@ -640,6 +631,7 @@ function Car () {
     components.nosBarHeightNum = parseInt(components.nosBarHeight.match(/\d+/)[0]);
 
     if( !this.speedUp && components.nosBarHeightNum < 1  ){
+      console.log("accuuuuuuu");
       components.nosBar.setAttribute("class", "n-inner accumulation");
     } else if( !this.speedUp && components.nosBarHeightNum > 128 ){
       components.nosBar.style.setProperty("--bar-height", components.nosBarHeight);
@@ -697,8 +689,11 @@ function Car () {
     if( this.meter === this.maxMeter ){
       // console.log(this.meter);
       // if( !this.speedUp ){
-      //   components.needle.remove();
-      //   components.needle = createElement("div", { className: "needle" }, components.meter);
+
+        // components.needle.remove();
+        // components.needle = createElement("div", { className: "needle" }, components.meter);
+        // components.needle.style.setProperty("--needle-rotation", `${this.meter}deg`);
+
       //   components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
       // }
 
@@ -931,7 +926,7 @@ function Components () {
   this.timeWrapper = createElement("div", { className: "fuel-outer" }, body);
 
   this.elements = [
-    this.meter, this.speedNum, this.speedNumUnit, this.timeCount, this.timeWrapper
+    this.meter, this.speedNum, this.speedNumUnit, this.timeCount, this.timeWrapper, this.nosLightning
   ];
 
   this.showUI = () => {
@@ -1368,7 +1363,7 @@ let initWorld = () => {
 
     loading.style.display = "none";
 
-    document.querySelector(".permission-button").addEventListener("click", e => {
+    document.querySelectorAll(".permission-button")[0].addEventListener("click", e => {
       audioContext.resume().then( () => {
         console.log("resume success");
         document.querySelector(".permission-wrapper").style.display = "none";
@@ -1472,3 +1467,7 @@ document.body.addEventListener( "keyup", e => {
     break;
   }
 } );
+
+document.querySelectorAll(".permission-button")[1].addEventListener("click", () => {
+  location.href = "./";
+});

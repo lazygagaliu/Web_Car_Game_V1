@@ -29,7 +29,7 @@
 }
 
 /* default display none */
-.meter, .meter-number, .meter-unit, .n-outer, .running-time, .fuel-outer {
+.meter, .meter-number, .meter-unit, .n-outer, .running-time, .fuel-outer, .lightning {
   display: none;
 }
 
@@ -85,6 +85,7 @@
 .finish-wrapper {
   width: 100%; height: 100%; top:0px; left:0px;
   background-color: #ddd; opacity: 0.8;
+  z-index: 200;
 }
 .record-wrapper {
   width: 500px; height: 375px;
