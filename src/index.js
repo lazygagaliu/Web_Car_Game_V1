@@ -15,6 +15,9 @@ bgm.playing = false;
 let clickLr = document.getElementById("clicklr");
 let clickUd = document.getElementById("clickud");
 
+let startBtn = document.querySelector("#start");
+let controlBtn = document.querySelector("#control");
+
 let cars = [];
 
 let carData = [
@@ -194,4 +197,51 @@ document.querySelector(".onoff").addEventListener("click", e => {
     bgm.playing = false;
   }
 
+});
+
+//////
+startBtn.addEventListener("click", () => {
+  location.href = "game.html";
+});
+
+controlBtn.addEventListener("click", () => {
+  arrows[0].classList.remove("arrow-hidden");
+  showControl.style.display = "block";
+});
+
+for( let i = 0; i < carOptions.length; i++ ){
+  carOptions[i].addEventListener("click", (e) => {
+    let chosenCar = JSON.parse( localStorage.getItem("chosenCar") );
+    cars.forEach( car => {
+      if( car.visible === true ){
+        car.visible = false;
+      } else{
+        car.visible = true;
+      }
+    });
+    carOptions.forEach( option => {
+      if( option.classList.contains("selected") ){
+        option.classList.remove("selected");
+      }else {
+        option.classList.add("selected");
+      }
+    });
+    switch (true) {
+      case e.target.classList.contains("car-1"):
+      localStorage.setItem("chosenCar", JSON.stringify(carData[0]));
+      break;
+
+      case e.target.classList.contains("car-2"):
+      localStorage.setItem("chosenCar", JSON.stringify(carData[1]));
+      break;
+    }
+  });
+}
+
+
+//////
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth, window.innerHeight );
 });

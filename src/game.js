@@ -238,7 +238,7 @@ THREE.CannonDebugRenderer.prototype = {
 
 
 /* --------- Variables --------- */
-let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints, finishLine, audio;
+let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints, finishLine, audio, speedUpPoints;
 
 // Web Audio API
 let AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -310,6 +310,7 @@ let initThree = () => {
 
   // Initialize camera
   camera = new THREE.PerspectiveCamera( 70, window.innerWidth/window.innerHeight, 0.1, 3100); // first param -> the greater the amount of scene the camera will show
+  console.log(camera);
   scene.add(camera);
   camera.position.set(200, 0, 50); // move back a bit so we can see the whole obj
 
@@ -393,7 +394,6 @@ function Car () {
   this.numBrake = 1.25;
   this.maxNum = 100;  // nos 175  back 50
 
-
   this.radian = 0;
   this.rotation = 0;
 
@@ -429,6 +429,70 @@ function Car () {
     world.add( this.cannonBody );
   }
 
+  this.speedUpObjs = [];
+
+  this.speedUpPoints = function SpeedUpPoints(x, z) {
+    // speedUpAnimation data
+    this.pointsNum = 100;
+    this.pointsSpeed = 0.01;
+    this.size = 20;
+    this.dir = [];
+    this.texture = loader.load("asset/imgs/smoke.png");
+
+    let geometry = new THREE.Geometry();
+    let material = new THREE.PointsMaterial({
+      size: this.size,
+      color: new THREE.Color( 0x38e3f6 ),  //0xdd4238
+      blending: THREE.AdditiveBlending,
+      depthTest: false,
+      map: this.texture,
+      transparent: true,
+      opacity: 0.1
+     });
+
+     for( let i = 0; i < this.pointsNum; i++ ){
+       let vertex = new THREE.Vector3( x, -5, z );
+       geometry.vertices.push(vertex);
+
+       let r = this.pointsSpeed * THREE.Math.randFloat(0, 1) + 5;
+       let theta = Math.random() * Math.PI * 2;
+       let phi = Math.random() * Math.PI;
+       this.dir.push({
+         x: r * Math.sin(phi) * Math.cos(theta),
+         y: r * Math.sin(phi) * Math.sin(theta),
+         z: r * Math.cos(phi)
+       });
+     }
+
+     this.object = new THREE.Points(geometry, material);
+     player.speedUpObjs.push(this.object);
+     scene.add(this.object);
+
+     this.update = () => {
+       let p = this.pointsNum;
+       let d = this.dir;
+
+       while( p-- ){
+         let particle = this.object.geometry.vertices[p];
+         particle.x += d[p].x;
+         particle.y = -11 + Math.random() * 0.0001;
+         particle.z += d[p].z;
+       }
+
+       this.object.geometry.verticesNeedUpdate = true;
+     }
+
+     this.destroy = () => {
+       player.speedUpObjs.forEach( obj => {
+         obj.geometry.dispose();
+         scene.remove(obj);
+       });
+       this.dir.length = 0;
+       player.speedUpObjs = [];
+     }
+  }
+
+
   this.move = () => {
 
     if( this.finished ){
@@ -451,8 +515,20 @@ function Car () {
       this.movement = "stop";
     }
 
+    // if( this.speedUp && speedUpPoints && speedUpPoints.objects.length > 5 ){
+    //   speedUpPoints.destroy();
+    // }
+    // else if( !this.speedUp && speedUpPoints && speedUpPoints.objects.length !== 0 ){
+    //   speedUpPoints.destroy();
+    // }
+
     // use NOS -- SpeedUp -> true ----- change some states for nos
     if( this.speedUp ){
+      // audio.play("rocket");
+      speedUpPoints = new this.speedUpPoints(
+        driver.position.x + Math.sin(this.rotation)*10, driver.position.z + Math.cos(this.rotation)*10
+      );
+
       this.accelaration = 0.3;
       this.maxSpeed = 7;
       this.meterAccelaration = 23.7;
@@ -467,6 +543,10 @@ function Car () {
       this.numAccelaration = 1.25;
       this.maxNum = 50;
     } else {
+      if(speedUpPoints && this.speedUpObjs.length !== 0){
+        speedUpPoints.destroy();
+        console.log("destroy");
+      }
       this.accelaration = 0.1;
       this.maxSpeed = 4;
       this.meterAccelaration = 7.9;
@@ -483,7 +563,8 @@ function Car () {
         this.meter += this.meterAccelaration;
         this.num += this.numAccelaration;
         if( this.speed > this.maxSpeed ){
-          // audio.play("maxSound");
+          // audio.play("maxdriveSound");
+          // audio.stopPlay();
           this.speed = this.maxSpeed;
           this.meter = this.maxMeter;
           this.num = this.maxNum;
@@ -671,7 +752,7 @@ function Floor () {
   });
   this.cannonBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1, 0, 0), -2*Math.PI/360*90 );
   // THREE part
-  this.threeTexture = loader.load("asset/imgs/tarmac_light.png");
+  this.threeTexture = loader.load("asset/imgs/road.jpg"); //tarmac_light.png
   this.threeTexture.wrapS = this.threeTexture.wrapT = THREE.RepeatWrapping;
   this.threeTexture.repeat.set( 500, 500 );
   this.threeTexture.anisotropy = 16;
@@ -1035,7 +1116,9 @@ function FinishLine () {
     createElement("div", {className: "player-record", textContent: title}, playerRecordWrapper);
     createElement("div", {className: "player-record", textContent: content}, playerRecordWrapper);
 
-    let records = createElement("div", {className: "records"}, recordWrapper);
+    if(player.finished){
+      let records = createElement("img", {src: "asset/imgs/trophy.png"}, recordWrapper);
+    }
 
     let finishOptions = createElement("div", {className: "finish-options"}, recordWrapper);
     let restart = createElement("div", {className: "finish-option", textContent: "RESTART"}, finishOptions);
@@ -1057,11 +1140,12 @@ function FinishLine () {
 function Audio () {
   // Audio files
   this.data = [
-    "asset/audio/eminem_feat_ludacris_lil_wayne_second_chance.mp3",
+    "asset/audio/eminem_feat_ludacris_lil_wayne_second_chance.ogg",
+    "asset/audio/rocket.mp3", // 3.5
     "asset/audio/startnew.ogg",  // < 4
     "asset/audio/stopnew.ogg", // 8
     "asset/audio/maxdrive.ogg", // 20
-    "asset/audio/slowdownnew.ogg", // 6
+    "asset/audio/slowdown.ogg", // 8.22
     "asset/audio/maxdrivenos.ogg" // 4
   ];
 
@@ -1069,6 +1153,7 @@ function Audio () {
   this.audioNodesBuffer = [];
   this.audioNodesData = [];
   this.audioNames = [
+    "rocket",
     "startSound",
     "maxdrivenosSound",
     "slowSound",
@@ -1078,8 +1163,8 @@ function Audio () {
   ];
 
   // The data for the startSound to loop the max speed period
-  this.loopStart = 1.018;
-  this.loopEnd = 1.037;
+  // this.loopStart = 1.018;
+  // this.loopEnd = 1.037;
 
   // Method for comparing the audios length for sorting them out
   this.compare = (a, b) => {
@@ -1174,14 +1259,16 @@ function Audio () {
     if( currentAudio === "startSound" ){
       this.realTime = 1.037 * this.ratio;
     } else if( currentAudio === "slowSound" ){
-      this.realTime = 1.037 / 3 * 10 * (1 - this.ratio);
-    }
+      this.realTime = ( 8.22 - 3.45 ) * (1 - this.ratio) + 3.45;
+    } //1.037 / 10 * 3
 
     this.loopStart = currentAudio === "startSound" ? 1.018 : 0;
+     // this.loopStart = 0;
+     // this.loopEnd = this.audioNodesData[i].buffer.duration;
 
     for( let i = 0; i < this.audioNodesData.length - 1; i++ ){
       this.loopEnd = currentAudio === "startSound" ? 1.037 : this.audioNodesData[i].buffer.duration;
-
+      // this.loopEnd = this.audioNodesData[i].buffer.duration;
       if( this.audioNodesData[i].name === currentAudio && this.audioNodesData[i].playing === false ){
         console.log(this.realTime);
         this[this.audioNodesData[i].name] = this.startPlay( this.audioNodesData[i].buffer, this.loopStart, this.loopEnd, this.realTime );
@@ -1193,12 +1280,23 @@ function Audio () {
     }
   }
 
+  //////
+  this.stopPlay = () => {
+    this.startSound.disconnect(audioContext);
+    this.audioNodesData[1].playing = false;
+  }
+
 
 }
 
 
 /* --------- Render it !  --------- */
   let render = () => {
+
+    if( player.speedUp && speedUpPoints && player.speedUpObjs.length !== 0 ){
+      speedUpPoints.update();
+    }
+
     player.move();
 
     cannonDebugRenderer.update();
@@ -1254,6 +1352,11 @@ let initWorld = () => {
   // Create FinishLine Obj
   finishLine = new FinishLine;
 
+  ////////
+  // speedUpPoints = new player.speedUpPoints(200, 10);
+
+
+
   let loadCarAudio = async () => {
     let data = JSON.parse( localStorage.getItem("chosenCar") );
     player.car = await player.loadModel(data.path, data.mtl, data.obj);
@@ -1262,11 +1365,9 @@ let initWorld = () => {
     driver = player.car;
     scene.add(player.car);
     player.updatePhysics(player.car);
-    console.log("load audio")
 
     loading.style.display = "none";
 
-    console.log("p w")
     document.querySelector(".permission-button").addEventListener("click", e => {
       audioContext.resume().then( () => {
         console.log("resume success");
@@ -1293,7 +1394,7 @@ let initWorld = () => {
           if(n < -1 ){
 
             // ths longest one -> background music
-            audio.startPlay( audio.audioNodesData[5].buffer, 0, audio.audioNodesData[5].buffer.duration, 0 );
+            audio.startPlay( audio.audioNodesData[6].buffer, 0, audio.audioNodesData[6].buffer.duration, 0 );
             console.log("play theme");
 
             components.countdown.remove();
@@ -1341,13 +1442,17 @@ document.body.addEventListener( "keydown", e => {
     case 32: // spacebar
     if( components.nosBarHeightNum > 128 ){
       player.speedUp = true;
+      document.querySelector("#nosSound").play();
     }
     break;
 
     case 73: // I for test
     // player.speedUp = false;
     // components.showFinishWindow();
-    finishLine.addLine();
+    // finishLine.addLine();
+    // speedUpPoints = new player.speedUpPoints(
+    //   driver.position.x + Math.sin(player.rotation)*-30, driver.position.z + Math.cos(player.rotation)*-30
+    // );
     break;
   }
 } );

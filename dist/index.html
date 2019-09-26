@@ -5,7 +5,10 @@
     <title>Ride or Die</title>
     <style>
 			body { margin: 0; }
-			canvas { width: 100%; height: 100%; }
+			canvas {
+        width: 100%; height: 100%;
+        /* position: absolute; top: 0px; left: 0px; z-index: 0; */
+      }
 		</style>
     <link rel="stylesheet" href="index.css" />
   </head>
@@ -27,7 +30,7 @@
     </audio>
 
 
-      <div class="onoff"></div>
+    <div class="onoff"></div>
 
 
 
@@ -51,21 +54,23 @@
       RIDE OR DIE
     </div>
 
-    <div class="car-options-wrapper">
-      <div class="car-option car-1 selected">
-      </div>
-      <div class="car-option car-2">
+    <div class="car-options-outer">
+      <div class="car-options-wrapper">
+        <div class="car-option car-1 selected">
+        </div>
+        <div class="car-option car-2">
+        </div>
       </div>
     </div>
 
     <div class="options">
       <div class="option">
         <img src="asset/imgs/arrow.png"/>
-        <div>Start</div>
+        <div id="start">Start</div>
       </div>
       <div class="option">
         <img class="arrow-hidden" src="asset/imgs/arrow.png"/>
-        <div>Controls</div>
+        <div id="control">Controls</div>
       </div>
     </div>
 
