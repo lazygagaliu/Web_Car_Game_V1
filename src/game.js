@@ -1138,9 +1138,7 @@ let initWorld = () => {
     alert(data.path);
     alert(data.mtl);
     alert(data.obj);
-    alert(dataCookie.path);
-    alert(dataCookie.mtl);
-    alert(dataCookie.obj);
+    
     player.car = await player.loadModel( data.path, data.mtl, data.obj );
     console.log("load car")
     await audio.getData();
