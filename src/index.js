@@ -112,7 +112,7 @@ let addListeners = () => {
   for( let i = 0; i < carOptions.length; i++ ){
     carOptions[i].addEventListener("click", (e) => {
       // let chosenCar = JSON.parse(document.cookie);
-
+      clickLr.play();
       let chosencar = JSON.parse( localStorage.getItem("chosencar") );
       cars.forEach( car => {
         if( car.visible === true ){
