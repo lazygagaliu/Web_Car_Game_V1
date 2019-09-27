@@ -98,7 +98,7 @@ let initThree = () => {
 	scene.add( light );
 
   // Add clock
-  clock = new THREE.Clock();
+  // clock = new THREE.Clock();
 
   // Add helper
   // axes = new THREE.AxisHelper(800);
@@ -1079,14 +1079,18 @@ function Audio () {
 
 /* ---------  Create WORLD !  --------- */
 let initWorld = () => {
+  alert("start initWorld");
   initCannon();
+  alert("cannon ok three start");
   initThree();
-
+  alert("three ok");
   ////// Helper
   // cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
 
   // Create Audio Obj
   audio = new Audio;
+
+  alert("audio ok add car start");
 
   // Load Car
   player = new Car;
@@ -1190,8 +1194,10 @@ let initWorld = () => {
 
 initWorld();
 
+alert("addListeners");
 /*  ---------  Controls  ---------  */
 document.body.addEventListener( "keydown", e => {
+  alert("add keydown");
     switch( e.keyCode ){
     case 38: // ^
     player.movement = "forward";
@@ -1224,6 +1230,7 @@ document.body.addEventListener( "keydown", e => {
   }
 } );
 document.body.addEventListener( "keyup", e => {
+  alert("add up");
     switch( e.keyCode ){
     case 38: // ^
     player.movement = "stop";
