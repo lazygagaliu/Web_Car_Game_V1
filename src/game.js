@@ -9,7 +9,8 @@ let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driv
 
 alert("audio var declare");
 // Web Audio API
-let audioContext = window.AudioContext || window.webkitAudioContext;
+let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+// let AudioContext = window.AudioContext || window.webkitAudioContext;
 // let audioContext = new window.AudioContext;
 
 // DOMS from HTML
@@ -957,7 +958,6 @@ function Audio () {
     countdownSound.frequency.value = f;
     countdownSound.connect(audioContext.destination);
     countdownSound.start();
-    console.log("1");
     return countdownSound;
   }
 
@@ -1188,7 +1188,6 @@ let initWorld = () => {
 
 initWorld();
 
-alert("addListeners");
 /*  ---------  Controls  ---------  */
 document.body.addEventListener( "keydown", e => {
     switch( e.keyCode ){
