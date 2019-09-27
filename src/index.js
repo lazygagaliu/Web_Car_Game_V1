@@ -211,6 +211,8 @@ controlBtn.addEventListener("click", () => {
 
 for( let i = 0; i < carOptions.length; i++ ){
   carOptions[i].addEventListener("click", (e) => {
+    // let chosenCar = JSON.parse(document.cookie);
+
     let chosencar = JSON.parse( localStorage.getItem("chosencar") );
     cars.forEach( car => {
       if( car.visible === true ){
@@ -228,10 +230,12 @@ for( let i = 0; i < carOptions.length; i++ ){
     });
     switch (true) {
       case e.target.classList.contains("car-1"):
+      document.cookie = JSON.stringify(carData[0]);
       localStorage.setItem("chosencar", JSON.stringify(carData[0]));
       break;
 
       case e.target.classList.contains("car-2"):
+      document.cookie = JSON.stringify(carData[1]);
       localStorage.setItem("chosencar", JSON.stringify(carData[1]));
       break;
     }
