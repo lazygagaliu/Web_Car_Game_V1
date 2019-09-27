@@ -905,7 +905,7 @@ function FinishLine () {
 function Audio () {
   // Audio files
   this.data = [
-    "asset/audio/eminem_feat_ludacris_lil_wayne_second_chance.ogg",
+    "asset/audio/eminem_feat_ludacris_lil_wayne_second_chance.mp3",
     "asset/audio/rocket.mp3", // 3.5
     "asset/audio/startnew.ogg",  // < 4
     "asset/audio/stopnew.ogg", // 8
@@ -972,33 +972,64 @@ function Audio () {
     });
   }
 
+
+
   // Methed to get Audio Data
   this.getData = () => {
-    this.data.forEach( url => {
-      let xhr = new XMLHttpRequest();
 
-      xhr.open( "GET", url, true );
-      xhr.responseType = "arraybuffer";
-      xhr.onload = () => {
-        let audioData = xhr.response;
-        let xhrDone = this.decode(audioData);
-        xhrDone.then( buffer => {
-          this.audioNodesBuffer.push(buffer);
-          let n = 0;
-          if( this.audioNodesBuffer.length === this.data.length ){
-            console.log(this.audioNodesData)
-            this.audioNodesBuffer.sort(this.compare);
-            this.audioNodesBuffer.forEach( buffer => {
-              let audioData = new Obj( buffer, this.audioNames[n] );
-              this.audioNodesData.push(audioData);
-              n++;
-            });
-            console.log(this.audioNodesData); //////
-          }
-        });
-      }
-      xhr.send();
-    });
+    this.source = audioContext.createBufferSource();
+    console.log(this.source);
+  let request = new XMLHttpRequest();
+
+  request.open('GET', this.data[0], true);
+
+  request.responseType = 'arraybuffer';
+
+
+  request.onload = function() {
+    let audioData = request.response;
+
+    audioContext.decodeAudioData(audioData, buffer => {
+      console.log(buffer);
+      console.log(this);
+        audio.source.buffer = buffer;
+
+        audio.source.connect(audioContext.destination);
+        audio.source.loop = true;
+      },
+
+      function(e){ console.log("Error with decoding audio data" + e.err); });
+
+  }
+
+  request.send();
+
+    // this.data.forEach( url => {
+    //   let xhr = new XMLHttpRequest();
+    //
+    //   xhr.open( "GET", url, true );
+    //   xhr.responseType = "arraybuffer";
+    //   xhr.onload = () => {
+    //
+    //     let audioData = xhr.response;
+    //     let xhrDone = this.decode(audioData);
+    //     xhrDone.then( buffer => {
+    //       this.audioNodesBuffer.push(buffer);
+    //       let n = 0;
+    //       if( this.audioNodesBuffer.length === this.data.length ){
+    //         this.audioNodesBuffer.sort(this.compare);
+    //         this.audioNodesBuffer.forEach( buffer => {
+    //           let audioData = new Obj( buffer, this.audioNames[n] );
+    //           this.audioNodesData.push(audioData);
+    //           n++;
+    //         });
+    //         console.log(this.audioNodesData); //////
+    //       }
+    //     });
+    //
+    //   }
+    //   xhr.send();
+    // });
   }
 
   this.startPlay = (buffer, loopStart, loopEnd, realTime) => {
@@ -1159,7 +1190,8 @@ let initWorld = () => {
           if(n < -1 ){
 
             // ths longest one -> background music
-            audio.startPlay( audio.audioNodesData[6].buffer, 0, audio.audioNodesData[6].buffer.duration, 0 );
+            audio.source.start();
+            // audio.startPlay( audio.audioNodesData[6].buffer, 0, audio.audioNodesData[6].buffer.duration, 0 );
             console.log("play theme");
 
             components.countdown.remove();
