@@ -125,6 +125,7 @@ let init = () => {
       }
 
       localStorage.setItem("chosencar", JSON.stringify(carData[0]));
+      document.cookie = JSON.stringify(carData[0]);
 
       render();
       return car;
