@@ -10,7 +10,7 @@ let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driv
 alert("audio var declare");
 // Web Audio API
 let audioContext = window.AudioContext || window.webkitAudioContext;
-alert("audio var declare");
+// alert("audio var declare");
 // let audioContext = new window.AudioContext;
 
 alert("dom var declare");
