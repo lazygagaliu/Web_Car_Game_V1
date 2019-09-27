@@ -7,20 +7,24 @@ import { MTLLoader, OBJLoader } from "three-obj-mtl-loader";
 /* --------- Variables --------- */
 let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints, finishLine, audio, speedUpPoints;
 
+alert("audio var declare");
 // Web Audio API
 let AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioContext = new window.AudioContext;
 
+alert("dom var declare");
 // DOMS from HTML
 let body = document.querySelector("body");
 let loading = document.querySelector(".loading");
 
+alert("loader var declare");
 // THREE TextureLoader
 let loader = new THREE.TextureLoader();
 
 // Helper
 // let axes, box, cannonDebugRenderer;
 
+alert("map declare");
 /* --- Track Data --- */
 const map = [
   	{c:2}, {c:2}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2},
@@ -1197,7 +1201,6 @@ initWorld();
 alert("addListeners");
 /*  ---------  Controls  ---------  */
 document.body.addEventListener( "keydown", e => {
-  alert("add keydown");
     switch( e.keyCode ){
     case 38: // ^
     player.movement = "forward";
@@ -1230,7 +1233,6 @@ document.body.addEventListener( "keydown", e => {
   }
 } );
 document.body.addEventListener( "keyup", e => {
-  alert("add up");
     switch( e.keyCode ){
     case 38: // ^
     player.movement = "stop";
