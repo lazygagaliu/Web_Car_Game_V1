@@ -1128,9 +1128,12 @@ let initWorld = () => {
   // speedUpPoints = new player.speedUpPoints(200, 10);
 
 
+  alert("objs loaded");
 
   let loadCarAudio = async () => {
+    alert("get ls");
     let data = JSON.parse( localStorage.getItem("chosencar") );
+    alert("get cookie");
     let dataCookie = JSON.parse(document.cookie);
     alert(
       `${data.path} ${data.mtl} ${data.obj}
