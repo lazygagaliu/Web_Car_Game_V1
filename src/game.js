@@ -101,7 +101,7 @@ let initThree = () => {
   clock = new THREE.Clock();
 
   // Add helper
-  axes = new THREE.AxisHelper(800);
+  // axes = new THREE.AxisHelper(800);
 
   // scene.add(axes);
   // const controls = new OrbitControls(camera, renderer.domElement);

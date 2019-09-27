@@ -57,6 +57,93 @@ let load = ( path, mtl, obj ) => {
   });
 }
 
+
+let addListeners = () => {
+
+  // Options
+  document.body.addEventListener("keydown", e => {
+    if(e.keyCode === 38 || e.keyCode === 40){
+      clickud.play();
+      arrows.forEach(arrow=>{
+        arrow.classList.toggle("arrow-hidden");
+      });
+    } else if(e.keyCode === 13 && arrows[2].classList.contains("arrow-hidden")){
+      location.href = "game.html";
+    } else if(e.keyCode === 13 && arrows[1].classList.contains("arrow-hidden")){
+      showControl.style.display = "block";
+    } else if( e.keyCode === 37 || e.keyCode === 39 ){
+      clickLr.play();
+      let chosencar = JSON.parse( localStorage.getItem("chosencar") );
+      carData.forEach( car => {
+        if( chosencar.id === 0 ){
+          localStorage.setItem("chosencar", JSON.stringify(carData[1]));
+          console.log(localStorage);
+        }else if( chosencar.id === 1 ){
+          localStorage.setItem("chosencar", JSON.stringify(carData[0]));
+          console.log(localStorage);
+        }
+      });
+
+      cars.forEach( car => {
+        if( car.visible === true ){
+          car.visible = false;
+        } else{
+          car.visible = true;
+        }
+      });
+      carOptions.forEach( option => {
+        if( option.classList.contains("selected") ){
+          option.classList.remove("selected");
+        }else {
+          option.classList.add("selected");
+        }
+      });
+    }
+
+  });
+
+  //////
+  startBtn.addEventListener("click", () => {
+    location.href = "game.html";
+  });
+
+
+  ///
+  for( let i = 0; i < carOptions.length; i++ ){
+    carOptions[i].addEventListener("click", (e) => {
+      // let chosenCar = JSON.parse(document.cookie);
+
+      let chosencar = JSON.parse( localStorage.getItem("chosencar") );
+      cars.forEach( car => {
+        if( car.visible === true ){
+          car.visible = false;
+        } else{
+          car.visible = true;
+        }
+      });
+      carOptions.forEach( option => {
+        if( option.classList.contains("selected") ){
+          option.classList.remove("selected");
+        }else {
+          option.classList.add("selected");
+        }
+      });
+      switch (true) {
+        case e.target.classList.contains("car-1"):
+        document.cookie = JSON.stringify(carData[0]);
+        localStorage.setItem("chosencar", JSON.stringify(carData[0]));
+        break;
+
+        case e.target.classList.contains("car-2"):
+        document.cookie = JSON.stringify(carData[1]);
+        localStorage.setItem("chosencar", JSON.stringify(carData[1]));
+        break;
+      }
+    });
+  }
+
+}
+
 /* ------ Initialize index.html  ------ */
 let init = () => {
 
@@ -122,10 +209,12 @@ let init = () => {
       scene.add(car);
       if( cars[1] ){
         cars[1].visible = false;
+        addListeners();
       }
 
       localStorage.setItem("chosencar", JSON.stringify(carData[0]));
       document.cookie = JSON.stringify(carData[0]);
+
 
       render();
       return car;
@@ -139,51 +228,10 @@ let init = () => {
 init();
 
 
-// Options
-document.body.addEventListener("keydown", e => {
-  if(e.keyCode === 38 || e.keyCode === 40){
-    clickud.play();
-    arrows.forEach(arrow=>{
-      arrow.classList.toggle("arrow-hidden");
-    });
-  } else if(e.keyCode === 13 && arrows[2].classList.contains("arrow-hidden")){
-    location.href = "game.html";
-  } else if(e.keyCode === 13 && arrows[1].classList.contains("arrow-hidden")){
-    showControl.style.display = "block";
-  } else if( e.keyCode === 37 || e.keyCode === 39 ){
-    clickLr.play();
-    let chosencar = JSON.parse( localStorage.getItem("chosencar") );
-    carData.forEach( car => {
-      if( chosencar.id === 0 ){
-        localStorage.setItem("chosencar", JSON.stringify(carData[1]));
-        console.log(localStorage);
-      }else if( chosencar.id === 1 ){
-        localStorage.setItem("chosencar", JSON.stringify(carData[0]));
-        console.log(localStorage);
-      }
-    });
-
-    cars.forEach( car => {
-      if( car.visible === true ){
-        car.visible = false;
-      } else{
-        car.visible = true;
-      }
-    });
-    carOptions.forEach( option => {
-      if( option.classList.contains("selected") ){
-        option.classList.remove("selected");
-      }else {
-        option.classList.add("selected");
-      }
-    });
-  }
-
-});
-
-// Close the controls instruction window
-gotIt.addEventListener("click", e => {
-  showControl.style.display = "none";
+///
+controlBtn.addEventListener("click", () => {
+  arrows[0].classList.remove("arrow-hidden");
+  showControl.style.display = "block";
 });
 
 // Play the background music
@@ -200,49 +248,10 @@ document.querySelector(".onoff").addEventListener("click", e => {
 
 });
 
-//////
-startBtn.addEventListener("click", () => {
-  location.href = "game.html";
+// Close the controls instruction window
+gotIt.addEventListener("click", e => {
+  showControl.style.display = "none";
 });
-
-controlBtn.addEventListener("click", () => {
-  arrows[0].classList.remove("arrow-hidden");
-  showControl.style.display = "block";
-});
-
-for( let i = 0; i < carOptions.length; i++ ){
-  carOptions[i].addEventListener("click", (e) => {
-    // let chosenCar = JSON.parse(document.cookie);
-
-    let chosencar = JSON.parse( localStorage.getItem("chosencar") );
-    cars.forEach( car => {
-      if( car.visible === true ){
-        car.visible = false;
-      } else{
-        car.visible = true;
-      }
-    });
-    carOptions.forEach( option => {
-      if( option.classList.contains("selected") ){
-        option.classList.remove("selected");
-      }else {
-        option.classList.add("selected");
-      }
-    });
-    switch (true) {
-      case e.target.classList.contains("car-1"):
-      document.cookie = JSON.stringify(carData[0]);
-      localStorage.setItem("chosencar", JSON.stringify(carData[0]));
-      break;
-
-      case e.target.classList.contains("car-2"):
-      document.cookie = JSON.stringify(carData[1]);
-      localStorage.setItem("chosencar", JSON.stringify(carData[1]));
-      break;
-    }
-  });
-}
-
 
 //////
 window.addEventListener("resize", () => {
