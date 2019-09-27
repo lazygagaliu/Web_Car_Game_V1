@@ -124,7 +124,7 @@ let init = () => {
         cars[1].visible = false;
       }
 
-      localStorage.setItem("chosenCar", JSON.stringify(carData[0]));
+      localStorage.setItem("chosencar", JSON.stringify(carData[0]));
 
       render();
       return car;
@@ -151,13 +151,13 @@ document.body.addEventListener("keydown", e => {
     showControl.style.display = "block";
   } else if( e.keyCode === 37 || e.keyCode === 39 ){
     clickLr.play();
-    let chosenCar = JSON.parse( localStorage.getItem("chosenCar") );
+    let chosencar = JSON.parse( localStorage.getItem("chosencar") );
     carData.forEach( car => {
-      if( chosenCar.id === 0 ){
-        localStorage.setItem("chosenCar", JSON.stringify(carData[1]));
+      if( chosencar.id === 0 ){
+        localStorage.setItem("chosencar", JSON.stringify(carData[1]));
         console.log(localStorage);
-      }else if( chosenCar.id === 1 ){
-        localStorage.setItem("chosenCar", JSON.stringify(carData[0]));
+      }else if( chosencar.id === 1 ){
+        localStorage.setItem("chosencar", JSON.stringify(carData[0]));
         console.log(localStorage);
       }
     });
@@ -211,7 +211,7 @@ controlBtn.addEventListener("click", () => {
 
 for( let i = 0; i < carOptions.length; i++ ){
   carOptions[i].addEventListener("click", (e) => {
-    let chosenCar = JSON.parse( localStorage.getItem("chosenCar") );
+    let chosencar = JSON.parse( localStorage.getItem("chosencar") );
     cars.forEach( car => {
       if( car.visible === true ){
         car.visible = false;
@@ -228,11 +228,11 @@ for( let i = 0; i < carOptions.length; i++ ){
     });
     switch (true) {
       case e.target.classList.contains("car-1"):
-      localStorage.setItem("chosenCar", JSON.stringify(carData[0]));
+      localStorage.setItem("chosencar", JSON.stringify(carData[0]));
       break;
 
       case e.target.classList.contains("car-2"):
-      localStorage.setItem("chosenCar", JSON.stringify(carData[1]));
+      localStorage.setItem("chosencar", JSON.stringify(carData[1]));
       break;
     }
   });

@@ -519,7 +519,7 @@ function Car () {
 
     // use NOS -- SpeedUp -> true ----- change some states for nos
     if( this.speedUp ){
-      if( player.speedUpObjs.length < 5 )
+      if( player.speedUpObjs.length < 8 )
       speedUpPoints = new this.speedUpPoints(
         driver.position.x + Math.sin(this.rotation)*10, driver.position.z + Math.cos(this.rotation)*10
       );
@@ -631,7 +631,6 @@ function Car () {
     components.nosBarHeightNum = parseInt(components.nosBarHeight.match(/\d+/)[0]);
 
     if( !this.speedUp && components.nosBarHeightNum < 1  ){
-      console.log("accuuuuuuu");
       components.nosBar.setAttribute("class", "n-inner accumulation");
     } else if( !this.speedUp && components.nosBarHeightNum > 128 ){
       components.nosBar.style.setProperty("--bar-height", components.nosBarHeight);
@@ -646,8 +645,8 @@ function Car () {
     }
 
     if( this.speed === 0 ){
-      if( this.failed ){
-        finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
+      if( this.failed && !finishLine.failWindow ){
+        finishLine.failWindow = finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
       }
 
       components.nosBar.classList.remove("accumulation");
@@ -688,14 +687,14 @@ function Car () {
 
     if( this.meter === this.maxMeter ){
       // console.log(this.meter);
-      // if( !this.speedUp ){
+      if( !this.speedUp && components.nosBarHeightNum > 1 && components.nosBarHeightNum < 128 ){
 
-        // components.needle.remove();
-        // components.needle = createElement("div", { className: "needle" }, components.meter);
-        // components.needle.style.setProperty("--needle-rotation", `${this.meter}deg`);
+        components.needle.remove();
+        components.needle = createElement("div", { className: "needle" }, components.meter);
+        components.needle.style.setProperty("--needle-rotation", `${this.meter}deg`);
 
-      //   components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
-      // }
+        // components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
+      }
 
       components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
       components.needle.setAttribute("class", "needle vibrant");
@@ -1127,6 +1126,8 @@ function FinishLine () {
       location.href = "./";
     });
 
+    return finishWrapper;
+
   }
 
 }
@@ -1353,7 +1354,7 @@ let initWorld = () => {
 
 
   let loadCarAudio = async () => {
-    let data = JSON.parse( localStorage.getItem("chosenCar") );
+    let data = JSON.parse( localStorage.getItem("chosencar") );
     player.car = await player.loadModel(data.path, data.mtl, data.obj);
     console.log("load car")
     await audio.getData();
