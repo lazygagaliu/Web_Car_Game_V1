@@ -10,22 +10,18 @@ let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driv
 alert("audio var declare");
 // Web Audio API
 let audioContext = window.AudioContext || window.webkitAudioContext;
-// alert("audio var declare");
 // let audioContext = new window.AudioContext;
 
-alert("dom var declare");
 // DOMS from HTML
 let body = document.querySelector("body");
 let loading = document.querySelector(".loading");
 
-alert("loader var declare");
 // THREE TextureLoader
 let loader = new THREE.TextureLoader();
 
 // Helper
 // let axes, box, cannonDebugRenderer;
 
-alert("map declare");
 /* --- Track Data --- */
 const map = [
   	{c:2}, {c:2}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:1}, {c:1}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2}, {c:2},
@@ -1084,18 +1080,13 @@ function Audio () {
 
 /* ---------  Create WORLD !  --------- */
 let initWorld = () => {
-  alert("start initWorld");
   initCannon();
-  alert("cannon ok three start");
   initThree();
-  alert("three ok");
   ////// Helper
   // cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
 
   // Create Audio Obj
   audio = new Audio;
-
-  alert("audio ok add car start");
 
   // Load Car
   player = new Car;
@@ -1128,16 +1119,9 @@ let initWorld = () => {
   // speedUpPoints = new player.speedUpPoints(200, 10);
 
 
-  alert("objs loaded");
-
   let loadCarAudio = async () => {
-    alert("get ls");
     let data = JSON.parse( localStorage.getItem("chosencar") );
-    alert("get cookie");
     // let dataCookie = JSON.parse(document.cookie);
-    alert(data.path);
-    alert(data.mtl);
-    alert(data.obj);
 
     player.car = await player.loadModel( data.path, data.mtl, data.obj );
     console.log("load car")
