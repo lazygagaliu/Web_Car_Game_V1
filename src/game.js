@@ -1134,14 +1134,14 @@ let initWorld = () => {
     alert("get ls");
     let data = JSON.parse( localStorage.getItem("chosencar") );
     alert("get cookie");
-    let dataCookie = JSON.parse(document.cookie);
+    // let dataCookie = JSON.parse(document.cookie);
     alert(data.path);
     alert(data.mtl);
     alert(data.obj);
     alert(dataCookie.path);
     alert(dataCookie.mtl);
     alert(dataCookie.obj);
-    player.car = await player.loadModel(data.path || dataCookie.path, data.mtl || dataCookie.mtl, data.obj || dataCookie.obj);
+    player.car = await player.loadModel( data.path, data.mtl, data.obj );
     console.log("load car")
     await audio.getData();
     driver = player.car;
