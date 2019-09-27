@@ -1356,6 +1356,9 @@ let initWorld = () => {
   let loadCarAudio = async () => {
     let data = JSON.parse( localStorage.getItem("chosencar") );
     let dataCookie = JSON.parse(document.cookie);
+    alert(
+      `${data.path} ${data.mtl} ${data.obj}
+      ${dataCookie.path} ${dataCookie.mtl} ${dataCookie.obj}`);
     player.car = await player.loadModel(data.path || dataCookie.path, data.mtl || dataCookie.mtl, data.obj || dataCookie.obj);
     console.log("load car")
     await audio.getData();
