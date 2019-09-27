@@ -1138,7 +1138,7 @@ let initWorld = () => {
     alert(data.path);
     alert(data.mtl);
     alert(data.obj);
-    
+
     player.car = await player.loadModel( data.path, data.mtl, data.obj );
     console.log("load car")
     await audio.getData();
@@ -1149,8 +1149,9 @@ let initWorld = () => {
     loading.style.display = "none";
 
     document.querySelectorAll(".permission-button")[0].addEventListener("click", e => {
+      alert("click success");
       audioContext.resume().then( () => {
-        console.log("resume success");
+        alert("resume success");
         document.querySelector(".permission-wrapper").style.display = "none";
         components.showUI();
 
