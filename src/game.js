@@ -906,24 +906,21 @@ function Audio () {
   // Audio files
   this.data = [
     "asset/audio/eminem_feat_ludacris_lil_wayne_second_chance.mp3",
-    "asset/audio/rocket.mp3", // 3.5
-    "asset/audio/startnew.ogg",  // < 4
-    "asset/audio/stopnew.ogg", // 8
-    "asset/audio/maxdrive.ogg", // 20
-    "asset/audio/slowdown.ogg", // 8.22
-    "asset/audio/maxdrivenos.ogg" // 4
+    // "asset/audio/rocket.mp3", // 3.5
+    "asset/audio/start.mp3",  // < 4
+    "asset/audio/stop.mp3", // 8
+    // "asset/audio/maxdrive.ogg", // 20
+    "asset/audio/slowdown.mp3" // 8.22
+    // "asset/audio/maxdrivenos.ogg" // 4
   ];
 
   // Store decoded audios for future use
   this.audioNodesBuffer = [];
   this.audioNodesData = [];
   this.audioNames = [
-    "rocket",
     "startSound",
-    "maxdrivenosSound",
     "slowSound",
     "stopSound",
-    "maxdriveSound",
     "themeSong"
   ];
 
@@ -977,32 +974,31 @@ function Audio () {
   // Methed to get Audio Data
   this.getData = () => {
 
-    this.source = audioContext.createBufferSource();
-    console.log(this.source);
-  let request = new XMLHttpRequest();
-
-  request.open('GET', this.data[0], true);
-
-  request.responseType = 'arraybuffer';
-
-
-  request.onload = function() {
-    let audioData = request.response;
-
-    audioContext.decodeAudioData(audioData, buffer => {
-      console.log(buffer);
-      console.log(this);
-        audio.source.buffer = buffer;
-
-        audio.source.connect(audioContext.destination);
-        audio.source.loop = true;
-      },
-
-      function(e){ console.log("Error with decoding audio data" + e.err); });
-
-  }
-
-  request.send();
+    this.data.forEach( url => {
+      let xhr = new XMLHttpRequest();
+      xhr.open( "GET", url, true );
+      xhr.responseType = "arraybuffer";
+      xhr.onload = () => {
+        let audioData = xhr.response;
+        audioContext.decodeAudioData(audioData, buffer => {
+          console.log("ready push buffer");
+          this.audioNodesBuffer.push(buffer);
+          console.log("push ");
+          let n = 0;
+          if( this.audioNodesBuffer.length === this.data.length ){
+            this.audioNodesBuffer.sort(this.compare);
+            this.audioNodesBuffer.forEach( buffer => {
+              let audioData = new Obj( buffer, this.audioNames[n] );
+              console.log("create objs");
+              this.audioNodesData.push(audioData);
+              n++;
+            });
+            console.log(this.audioNodesData); //////
+          }
+        });
+      }
+      xhr.send();
+    });
 
     // this.data.forEach( url => {
     //   let xhr = new XMLHttpRequest();
@@ -1157,6 +1153,7 @@ let initWorld = () => {
     player.car = await player.loadModel( data.path, data.mtl, data.obj );
     console.log("load car")
     await audio.getData();
+    console.log("load audio")
     driver = player.car;
     scene.add(player.car);
     player.updatePhysics(player.car);
@@ -1190,8 +1187,9 @@ let initWorld = () => {
           if(n < -1 ){
 
             // ths longest one -> background music
-            audio.source.start();
-            // audio.startPlay( audio.audioNodesData[6].buffer, 0, audio.audioNodesData[6].buffer.duration, 0 );
+            // audio.source.start();
+            console.log(audio.audioNodesData[3]);
+            audio.startPlay( audio.audioNodesData[3].buffer, 0, audio.audioNodesData[3].buffer.duration, 0 );
             console.log("play theme");
 
             components.countdown.remove();
@@ -1272,4 +1270,8 @@ document.body.addEventListener( "keyup", e => {
 
 document.querySelectorAll(".permission-button")[1].addEventListener("click", () => {
   location.href = "./";
+});
+
+document.getElementsByTagName("canvas")[0].addEventListener("touchstart", ()=>{
+  player.movement = "forward";
 });
