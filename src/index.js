@@ -259,3 +259,11 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize( window.innerWidth, window.innerHeight );
 });
+
+// document.getElementById("test").textContent = 567;
+// window.addEventListener('devicemotion', e => {
+// 	document.getElementById("test").textContent = `x: ${Math.round(e.accelerationIncludingGravity.x)} , y: ${Math.round(e.accelerationIncludingGravity.y)}, z: ${Math.round(e.accelerationIncludingGravity.z)} `;
+// }
+//  , false);
+
+ console.log(0);
