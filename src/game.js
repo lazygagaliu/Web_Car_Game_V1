@@ -990,27 +990,34 @@ function Audio () {
   // Methed to get Audio Data
   this.getData = () => {
 
-    this.data.forEach( url => {
-      let xhr = new XMLHttpRequest();
-      xhr.open( "GET", url, true );
-      xhr.responseType = "arraybuffer";
-      xhr.onload = () => {
-        let audioData = xhr.response;
-        audioContext.decodeAudioData(audioData, buffer => {
-          this.audioNodesBuffer.push(buffer);
-          let n = 0;
-          if( this.audioNodesBuffer.length === this.data.length ){
-            this.audioNodesBuffer.sort(this.compare);
-            this.audioNodesBuffer.forEach( buffer => {
-              let audioData = new Obj( buffer, this.audioNames[n] );
-              this.audioNodesData.push(audioData);
-              n++;
-            });
-          }
-        });
-      }
-      xhr.send();
+    return new Promise( (resolve, reject) => {
+
+      this.data.forEach( url => {
+        let xhr = new XMLHttpRequest();
+        xhr.open( "GET", url, true );
+        xhr.responseType = "arraybuffer";
+        xhr.onload = () => {
+          let audioData = xhr.response;
+          audioContext.decodeAudioData(audioData, buffer => {
+            this.audioNodesBuffer.push(buffer);
+            let n = 0;
+            if( this.audioNodesBuffer.length === this.data.length ){
+              this.audioNodesBuffer.sort(this.compare);
+              this.audioNodesBuffer.forEach( buffer => {
+                let audioData = new Obj( buffer, this.audioNames[n] );
+                this.audioNodesData.push(audioData);
+                n++;
+              });
+              resolve(this.audioNodesData);
+            }
+          });
+        }
+        xhr.send();
+      });
+
     });
+
+
 
     // this.data.forEach( url => {
     //   let xhr = new XMLHttpRequest();
@@ -1126,66 +1133,72 @@ let initWorld = () => {
   // cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
 
  let createObjs = () => {
-   // Create Audio Obj
-   audio = new Audio;
 
-   // Load Car
-   player = new Car;
-   player.addCar();
+   return new Promise( (resolve, reject) => {
+     // Create Audio Obj
+     audio = new Audio;
 
-   // Add SkyBox
-   sky = new Skybox;
-   sky.addSky();
+     // Load Car
+     player = new Car;
+     player.addCar();
 
-   // Add Floor
-   floor = new Floor;
-   floor.addFloor();
+     // Add SkyBox
+     sky = new Skybox;
+     sky.addSky();
 
-   // Add Wall
-   wall = new Wall;
-   wall.stickTextures();
-   wall.addWall();
+     // Add Floor
+     floor = new Floor;
+     floor.addFloor();
 
-   // Add UI to screen
-   components = new Components;
+     // Add Wall
+     wall = new Wall;
+     wall.stickTextures();
+     wall.addWall();
 
-   // Add Checkpoints
-   checkpoints = new Checkpoints;
-   checkpoints.addCheckpoint();
+     // Add UI to screen
+     components = new Components;
 
-   // Create FinishLine Obj
-   finishLine = new FinishLine;
+     // Add Checkpoints
+     checkpoints = new Checkpoints;
+     checkpoints.addCheckpoint();
+
+     // Create FinishLine Obj
+     finishLine = new FinishLine;
+
+     resolve(finishLine);
+   });
+
 
  }
-  // Create Audio Obj
-  audio = new Audio;
-
-  // Load Car
-  player = new Car;
-  player.addCar();
-
-  // Add SkyBox
-  sky = new Skybox;
-  sky.addSky();
-
-  // Add Floor
-  floor = new Floor;
-  floor.addFloor();
-
-  // Add Wall
-  wall = new Wall;
-  wall.stickTextures();
-  wall.addWall();
-
-  // Add UI to screen
-  components = new Components;
-
-  // Add Checkpoints
-  checkpoints = new Checkpoints;
-  checkpoints.addCheckpoint();
-
-  // Create FinishLine Obj
-  finishLine = new FinishLine;
+  // // Create Audio Obj
+  // audio = new Audio;
+  //
+  // // Load Car
+  // player = new Car;
+  // player.addCar();
+  //
+  // // Add SkyBox
+  // sky = new Skybox;
+  // sky.addSky();
+  //
+  // // Add Floor
+  // floor = new Floor;
+  // floor.addFloor();
+  //
+  // // Add Wall
+  // wall = new Wall;
+  // wall.stickTextures();
+  // wall.addWall();
+  //
+  // // Add UI to screen
+  // components = new Components;
+  //
+  // // Add Checkpoints
+  // checkpoints = new Checkpoints;
+  // checkpoints.addCheckpoint();
+  //
+  // // Create FinishLine Obj
+  // finishLine = new FinishLine;
 
   ////////
   // speedUpPoints = new player.speedUpPoints(200, 10);
@@ -1193,20 +1206,25 @@ let initWorld = () => {
 
   let loadCarAudio = async () => {
     let data = JSON.parse( localStorage.getItem("chosencar") );
-    // await createObjs();
-    console.log("objs created")
+    let objsOk = await createObjs();
+    console.log(objsOk);
     player.car = await player.loadModel( data.path, data.mtl, data.obj );
-    console.log("load car")
-    await audio.getData();
-    console.log("load audio")
+    console.log(player.car);
+    let audioOk = await audio.getData();
+    console.log(audioOk);
+    return `All data are ready`;
+  }
 
+
+  loadCarAudio().then( result => {
+    console.log(result);
     driver = player.car;
     scene.add(player.car);
     player.updatePhysics(player.car);
 
     loading.style.display = "none";
 
-    document.querySelectorAll(".permission-button")[0].addEventListener("click", e => {
+    document.querySelector(".permission-button").addEventListener("click", e => {
       audioContext.resume().then( () => {
         document.querySelector(".permission-wrapper").style.display = "none";
         components.showUI();
@@ -1257,10 +1275,67 @@ let initWorld = () => {
 
       });
     });
+  });
 
-  }
 
-  loadCarAudio();
+    // driver = player.car;
+    // scene.add(player.car);
+    // player.updatePhysics(player.car);
+    //
+    // loading.style.display = "none";
+    //
+    // document.querySelector(".permission-button").addEventListener("click", e => {
+    //   audioContext.resume().then( () => {
+    //     document.querySelector(".permission-wrapper").style.display = "none";
+    //     components.showUI();
+    //
+    //     let n = 3;
+    //     let countdownSounds = [];
+    //     let countdown = setInterval( ()=>{
+    //       let countdownSound;
+    //       if( n === 0 ){
+    //         countdownSound = audio.countdownSound(800);
+    //       } else { countdownSound = audio.countdownSound(400); }
+    //
+    //       if( n === 3 ){
+    //         components.countdown = createElement("div", { className: "countdown", textContent: n }, body);
+    //       }else if( n > 0 ) {
+    //         components.countdown.textContent = n;
+    //       }
+    //
+    //       countdownSounds.push(countdownSound);
+    //       n -= 1;
+    //
+    //       if(n < -1 ){
+    //
+    //         // ths longest one -> background music
+    //         audio.startPlay( audio.audioNodesData[3].buffer, 0, audio.audioNodesData[3].buffer.duration, 0 );
+    //         console.log("play theme");
+    //
+    //         components.countdown.remove();
+    //         components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
+    //         components.timeBar.style.setProperty("--left-time", `10s`);
+    //
+    //         countdownSounds.forEach( sound => {
+    //           sound.stop();
+    //         });
+    //
+    //         if( window.DeviceMotionEvent ){
+    //           window.addEventListener("devicemotion", initOrientation );
+    //         }
+    //
+    //         clearInterval(countdown);
+    //         return;
+    //       }
+    //     }, 1000 );
+    //
+    //
+    //     // Render world after loading car model
+    //     render();
+    //
+    //   });
+    // });
+
 
 }
 
@@ -1316,9 +1391,9 @@ document.body.addEventListener( "keyup", e => {
   }
 } );
 
-document.querySelectorAll(".permission-button")[1].addEventListener("click", () => {
-  location.href = "./";
-});
+// document.querySelectorAll(".permission-button")[1].addEventListener("click", () => {
+//   location.href = "./";
+// });
 
 document.getElementsByTagName("canvas")[0].addEventListener("touchstart", ()=>{
   player.movement = "forward";
