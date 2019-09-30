@@ -253,6 +253,10 @@ gotIt.addEventListener("click", e => {
   showControl.style.display = "none";
 });
 
+showControl.addEventListener("click", e => {
+  showControl.style.display = "none";
+});
+
 //////
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;

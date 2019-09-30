@@ -195,10 +195,7 @@ function Car () {
   // Method for returning Promise obj so we know the model has been loaded
   this.addCar = () => {
     this.cannonBody.quaternion.setFromAxisAngle( new CANNON.Vec3(0, 1, 0), 2*Math.PI/360*180 );
-    this.cannonBody.augularDamping = 1;
     world.add( this.cannonBody );
-
-    console.log(this.cannonBody);
   }
 
   // NOS effect objs
@@ -280,9 +277,8 @@ function Car () {
     // Run out of the time --> make car stop
     if( components.timeBar ){
       components.timeBarWidth = getComputedStyle(components.timeBar).width;
-      console.log(components.timeBarWidth);
+      // console.log(components.timeBarWidth);
       if( components.timeBarWidth === "0px" && !this.finished ){
-         // console.log(components.timeBarWidth);
           this.movement = "stop";
           this.failed = true;
           console.log("failed");
@@ -428,7 +424,7 @@ function Car () {
     }
 
     if( this.speed === 0 ){
-      if( this.failed && !finishLine.failWindow ){
+      if( this.failed && !finishLine.failWindow && !this.finished ){
         finishLine.failWindow = finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
       }
 
@@ -759,9 +755,9 @@ function Checkpoints () {
   this.data = [
     {x: 200, z: -100, t: 25},
     {x: 1350, z: -850, t: 20},
-    {x: 1350, z: 950, t: 20},
+    {x: 1350, z: 950, t: 18},
     {s: 90, x: 50, z: 1350, t: 20},
-    {s: 90, x: -1050, z: 1050, t: 20},
+    {s: 90, x: -1050, z: 1050, t: 18},
     {x: -1350, z: 50, t: 25},
     {x: -350, z: -1150, t: 25},
     {s: 45, x: -150, z: 550, t: 15, last: true},
@@ -781,6 +777,20 @@ function Checkpoints () {
   this.createCheckpoint = () => {
     this.checkpoint = new THREE.Mesh( this.threeGeometry, this.threeMaterial );
     return this.checkpoint;
+  }
+
+  // Method for detect the collision
+  this.collision = (e) => {
+    console.log("colliding!!!");
+
+    components.timeBar.remove();
+    components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
+    components.timeBar.style.setProperty("--left-time", `${e.target.time}s`);
+
+    if( e.target.last ){
+      finishLine.addLine();
+    }
+    e.target.removeEventListener("collide", this.collision);
   }
 
   // Method for creating the CANNON Checkpoint
@@ -822,19 +832,6 @@ function Checkpoints () {
   this.updatePhysics = (mesh, body) => {
     mesh.position.copy(body.position);
     mesh.quaternion.copy(body.quaternion);
-  }
-
-  // Method for detect the collision
-  this.collision = (e) => {
-    console.log("colliding!!!");
-    components.timeBar.remove();
-    components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
-    components.timeBar.style.setProperty("--left-time", `${e.target.time}s`);
-    console.log("add back!!!");
-    if( e.target.last ){
-      finishLine.addLine();
-    }
-    e.target.removeEventListener("collide", this.collision);
   }
 
   // Method for adding checkpoints to the world
@@ -1159,44 +1156,36 @@ let initWorld = () => {
    // Create FinishLine Obj
    finishLine = new FinishLine;
 
-   // let contactWall = new CANNON.ContactMaterial(wall.cannonMaterial, player.cannonMaterial, {
-   // friction: 10,
-   // restitution: 0,
-   // contactEquationRelaxation: 100,
-   // // frictionEquationStiffness: 1
-   //  })
-   //  world.addContactMaterial(contactWall);
-
  }
-  // // Create Audio Obj
-  // audio = new Audio;
-  //
-  // // Load Car
-  // player = new Car;
-  // player.addCar();
-  //
-  // // Add SkyBox
-  // sky = new Skybox;
-  // sky.addSky();
-  //
-  // // Add Floor
-  // floor = new Floor;
-  // floor.addFloor();
-  //
-  // // Add Wall
-  // wall = new Wall;
-  // wall.stickTextures();
-  // wall.addWall();
-  //
-  // // Add UI to screen
-  // components = new Components;
-  //
-  // // Add Checkpoints
-  // checkpoints = new Checkpoints;
-  // checkpoints.addCheckpoint();
-  //
-  // // Create FinishLine Obj
-  // finishLine = new FinishLine;
+  // Create Audio Obj
+  audio = new Audio;
+
+  // Load Car
+  player = new Car;
+  player.addCar();
+
+  // Add SkyBox
+  sky = new Skybox;
+  sky.addSky();
+
+  // Add Floor
+  floor = new Floor;
+  floor.addFloor();
+
+  // Add Wall
+  wall = new Wall;
+  wall.stickTextures();
+  wall.addWall();
+
+  // Add UI to screen
+  components = new Components;
+
+  // Add Checkpoints
+  checkpoints = new Checkpoints;
+  checkpoints.addCheckpoint();
+
+  // Create FinishLine Obj
+  finishLine = new FinishLine;
 
   ////////
   // speedUpPoints = new player.speedUpPoints(200, 10);
@@ -1204,7 +1193,7 @@ let initWorld = () => {
 
   let loadCarAudio = async () => {
     let data = JSON.parse( localStorage.getItem("chosencar") );
-    await createObjs();
+    // await createObjs();
     console.log("objs created")
     player.car = await player.loadModel( data.path, data.mtl, data.obj );
     console.log("load car")
@@ -1247,6 +1236,7 @@ let initWorld = () => {
 
             components.countdown.remove();
             components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
+            components.timeBar.style.setProperty("--left-time", `10s`);
 
             countdownSounds.forEach( sound => {
               sound.stop();
@@ -1254,8 +1244,6 @@ let initWorld = () => {
 
             if( window.DeviceMotionEvent ){
               window.addEventListener("devicemotion", initOrientation );
-            }else {
-              alert("not supported");
             }
 
             clearInterval(countdown);
@@ -1359,143 +1347,25 @@ window.addEventListener("resize", () => {
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
   }
-  // camera.aspect = window.innerWidth / window.innerHeight;
-  // camera.updateProjectionMatrix();
-  // renderer.setSize( window.innerWidth, window.innerHeight );
+
 });
 
-///////////////
-
-// let test = document.getElementById("test");
-// test.textContent = 5;
-// test.textContent = `${alphaInit} ${gammaInit}`;
-
+ /* --- Mobile Control --- */
 let initOrientation = e => {
-  // if(alphaInit === undefined){
-  //   alphaInit = Math.round(e.alpha);
-  // }
-  // let radian;
-  // let startPoint;
-  // let endPoint;
-  // let alpha = Math.round(e.alpha);
-  // let gamma = Math.round(e.gamma);
   let radian = Math.round(e.accelerationIncludingGravity.y);
   let activeNos = Math.round(e.accelerationIncludingGravity.z);
-  // test.textContent = `${radian}`;
 
   if( radian > 0 ){
-    player.radian = 2 * Math.PI / 360 * 1.2;
+    player.radian = 2 * Math.PI / 360 * 1.15;
   } else if( radian < 0 ) {
-    player.radian = -2 * Math.PI / 360 * 1.2;
+    player.radian = -2 * Math.PI / 360 * 1.15;
   } else {
     player.radian = 0;
   }
 
-  if( activeNos < -9 ){
+  if( activeNos < -9 && components.nosBarHeightNum > 128 ){
     player.speedUp = true;
     document.querySelector("#nosSound").play();
   }
 
-  // player.radian = 2 * Math.PI / 360 / 100 * radian;
-
-  // switch (true) {
-  //   case alphaInit >= 90 && alphaInit <= 270:
-  //   startPoint = alphaInit - 90;
-  //   endPoint = alphaInit + 90;
-  //   if( alpha > startPoint && alpha < endPoint ){
-  //     radian = alpha - alphaInit;
-  //     player.radian = 2 * Math.PI / 360 / 100 * radian;
-  //     test.textContent = `a  ${alphaInit}  ${alpha}  ${player.radian}`;
-  //   }
-  //   break;
-  //
-  //   case alphaInit < 90:
-  //   startPoint = alphaInit + 90;
-  //   endPoint = alphaInit + 270;
-  //   if( alpha < startPoint || alpha > endPoint ){
-  //     test.textContent = `b  ${alphaInit}  ${alpha}  ${player.radian}`;
-  //     if( alpha > endPoint ){
-  //       radian = alpha - alphaInit - 360;
-  //       player.radian = 2 * Math.PI / 360 / 100 * radian;
-  //       test.textContent = `b1  ${alphaInit}  ${alpha}  ${player.radian}`;
-  //     }else {
-  //       player.radian = 2 * Math.PI / 360 / 100 * radian;
-  //       test.textContent = `b2  ${alphaInit}  ${alpha}  ${player.radian}`;
-  //     }
-  //     test.textContent = `bf ${alphaInit}  ${alpha}  ${player.radian}`;
-  //   }
-  //   break;
-  //
-  //   case alphaInit > 270:
-  //   startPoint = alphaInit + 90 - 360;
-  //   endPoint = alphaInit + 270 - 360;
-  //   if( alpha < startPoint || alpha > endPoint ){
-  //     test.textContent = `c  ${alphaInit}  ${alpha}  ${player.radian}`;
-  //     if( alpha < startPoint ){
-  //       radian = alpha - alphaInit + 360;
-  //       player.radian = 2 * Math.PI / 360 / 100 * radian;
-  //       test.textContent = `c1  ${alphaInit}  ${alpha}  ${player.radian}`;
-  //     }else {
-  //       player.radian = 2 * Math.PI / 360 / 100 * radian;
-  //       test.textContent = `c2  ${alphaInit}  ${alpha}  ${player.radian}`;
-  //     }
-  //     test.textContent = `cf  ${alphaInit}  ${alpha}  ${player.radian}`;
-  //   }
-  //   break;
-  //
-  // }
-
-
-  // gammaInit = Math.round(e.gamma);
-  // test.textContent = `${alphaInit} ${gammaInit}`;
-  // e.target.removeEventListener("deviceorientation", initOrientation);
-  // window.addEventListener( "deviceorientation", e => {
-
-
-    // switch (true) {
-    //   case alphaInit >= 90 && alphaInit <= 270:
-    //   radian = alpha - alphaInit;
-    //   test.textContent = `${alpha} ${gamma} ${radian}`;
-    //
-    //   if( alpha < alphaInit + 90 && alpha > alphaInit - 90 ){
-    //     player.rotation = 2 * Math.PI / 360 * radian;
-    //     test.textContent = `${alpha} ${gamma} ${radian} ${player.rotation}`;
-    //   }
-    //   break;
-    //
-    //   case alphaInit < 90:
-    //   radian = alpha - alphaInit;
-    //   startPoint = alphaInit + 90;
-    //   endPoint = alphaInit + 270;
-    //   if( alpha < startPoint && alpha > endPoint ){
-    //     if( alpha > endPoint ){
-    //       radian -= radian - 360;
-    //     }else {
-    //       player.rotation = 2 * Math.PI / 360 * radian;
-    //     }
-    //   }
-    //   break;
-    //
-    //   case alphaInit > 270:
-    //   radian = alpha - alphaInit;
-    //   startPoint = alphaInit + 90 - 360;
-    //   endPoint = alphaInit + 270 - 360;
-    //   if( alpha < startPoint && alpha > endPoint ){
-    //     if( alpha < startPoint ){
-    //       radian += radian + 360;
-    //     }else {
-    //       player.rotation = 2 * Math.PI / 360 * radian;
-    //     }
-    //   }
-    //   break;
-    //
-    // }
-
-  // });
 };
-
-// if(window.DeviceOrientationEvent){
-//   window.addEventListener("deviceorientation", initOrientation );
-// }else {
-//   alert("not supported");
-// }

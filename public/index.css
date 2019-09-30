@@ -1,8 +1,4 @@
 @font-face {
-  font-family: mario;
-  src: url("asset/font/SuperMario256.ttf");
-}
-@font-face {
   font-family: destroy;
   src: url("asset/font/VehicleBreaksDown-Regular.ttf");
 }
@@ -11,14 +7,11 @@
   src: url("asset/font/INFECTED.ttf");
 }
 
-/* .onoff, .fade-wrapper, .name, .car-options-wrapper, .options {
-  z-index: 200;
-} */
-
+/* Control PopUp Window */
 .fade-wrapper {
   position: absolute;
   width: 100%; height:100%;
-  display:none;
+  display:none; /*none*/
   background-color: #999;
   opacity: 0.8;
   z-index: 300;
@@ -30,7 +23,7 @@
   border: 3px solid firebrick;
   background-color: #fff;
   margin: 60px auto;
-  display: flex;
+  display: flex; /*flex*/
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
@@ -52,6 +45,43 @@
   cursor: pointer;
 }
 
+/* Control PopUp Window -- mobile */
+.control-wrapper-mobile {
+  width: 300px; height: 500px;
+  border-radius: 8px;
+  border: 3px solid firebrick;
+  background-color: #fff;
+  margin: 60px auto;
+  display: none; /*flex*/
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+.control-mobile {
+  width: 90%;
+  display: flex; flex-direction: column;
+}
+.control-imgs {
+  height: 80px;
+}
+.img-direction, .img-nos, .img-tilt {
+  background-repeat: no-repeat; background-size: contain; background-position: center;
+}
+.img-direction {
+  background-image: url("./asset/imgs/control.png");
+}
+.img-nos {
+  background-image: url("./asset/imgs/nos.png");
+}
+.img-tilt {
+  background-image: url("./asset/imgs/tilt.png");
+}
+.control-content {
+  margin: 10px 0px;
+  font-size: 16px; line-height: 24px;
+}
+
+/* Title */
 .name {
   width: 100%;
   text-align: center;
@@ -62,7 +92,7 @@
   margin-top: 30px;
 }
 
-
+/* Car options */
 .car-options-wrapper {
   position: absolute; bottom: 20px; left: 20px;
   width: 400px; height: 160px;
@@ -92,6 +122,8 @@
   border: 3px solid orange;
 }
 
+
+/* Menu options */
 .options {
   font-family: infect;
   font-size: 70px;
@@ -113,7 +145,7 @@
   visibility: hidden;
 }
 
-
+/* Music Switch */
 .onoff {
   position: absolute; top:15px; left:15px;
   width:28px; height:25px;
@@ -122,7 +154,7 @@
 }
 
 
-
+/* Media Query */
 @media (max-width: 960px) {
   .name {
     font-size: 100px;
@@ -167,10 +199,10 @@
     position: unset;
   }
   .control-wrapper {
-    width: 300px;
+    display: none;
   }
-  .control-wrapper img {
-    width: 250px;
+  .control-wrapper-mobile {
+    display: flex;
   }
 }
 
