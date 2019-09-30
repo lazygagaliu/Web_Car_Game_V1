@@ -273,20 +273,22 @@ function Car () {
     if( this.finished ){
       this.movement = "stop";
       components.timeBar.remove();
+      components.finalTime();
+      console.log("finished");
     }
 
     // Run out of the time --> make car stop
     if( components.timeBar ){
       components.timeBarWidth = getComputedStyle(components.timeBar).width;
-
+      console.log(components.timeBarWidth);
       if( components.timeBarWidth === "0px" && !this.finished ){
+         // console.log(components.timeBarWidth);
           this.movement = "stop";
           this.failed = true;
+          console.log("failed");
 
       } else if( !this.finished ){
         components.runningTime();
-      } else if( this.finished ){
-        components.finalTime();
       }
 
     } else{
@@ -755,14 +757,14 @@ function Components () {
 function Checkpoints () {
   // coordinates of Checkpoints
   this.data = [
-    {x: 200, z: -100, t: 30},
+    {x: 200, z: -100, t: 25},
     {x: 1350, z: -850, t: 20},
     {x: 1350, z: 950, t: 20},
     {s: 90, x: 50, z: 1350, t: 20},
     {s: 90, x: -1050, z: 1050, t: 20},
     {x: -1350, z: 50, t: 25},
-    {x: -350, z: -1150, t: 30},
-    {s: 45, x: -150, z: 550, t: 30, last: true},
+    {x: -350, z: -1150, t: 25},
+    {s: 45, x: -150, z: 550, t: 15, last: true},
   ];
   this.checkpoints = [];
   this.aniNum = 0;
@@ -828,6 +830,7 @@ function Checkpoints () {
     components.timeBar.remove();
     components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
     components.timeBar.style.setProperty("--left-time", `${e.target.time}s`);
+    console.log("add back!!!");
     if( e.target.last ){
       finishLine.addLine();
     }
@@ -1329,13 +1332,13 @@ document.querySelectorAll(".permission-button")[1].addEventListener("click", () 
   location.href = "./";
 });
 
-// document.getElementsByTagName("canvas")[0].addEventListener("touchstart", ()=>{
-//   player.movement = "forward";
-// });
-
-document.getElementsByTagName("canvas")[0].addEventListener("click", ()=>{
+document.getElementsByTagName("canvas")[0].addEventListener("touchstart", ()=>{
   player.movement = "forward";
 });
+
+// document.getElementsByTagName("canvas")[0].addEventListener("click", ()=>{
+//   player.movement = "forward";
+// });
 
 let turnLandscape = () => {
   if( window.matchMedia( "(max-width: 768px)" ).matches ){
