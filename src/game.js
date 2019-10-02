@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from "cannon";
 import { MTLLoader, OBJLoader } from "three-obj-mtl-loader";
-// import OrbitControls from 'three-orbitcontrols';
+import OrbitControls from 'three-orbitcontrols';
 
 
 /* --------- Variables --------- */
@@ -77,7 +77,7 @@ let initThree = () => {
   scene = new THREE.Scene();
 
   // Initialize camera
-  camera = new THREE.PerspectiveCamera( 70, window.innerWidth/window.innerHeight, 0.1, 3100); // first param -> the greater the amount of scene the camera will show
+  camera = new THREE.PerspectiveCamera( 70, window.innerWidth/window.innerHeight, 0.1, 4000); // first param -> the greater the amount of scene the camera will show
   scene.add(camera);
   camera.position.set(200, 0, 50); // move back a bit so we can see the whole obj
 
@@ -105,6 +105,7 @@ let initThree = () => {
 
   // scene.add(axes);
   // const controls = new OrbitControls(camera, renderer.domElement);
+  // console.log(controls);
 }
 
 // Create Element to render on the screen
@@ -425,8 +426,8 @@ function Car () {
 
     if( this.speed === 0 ){
       if( this.failed && !finishLine.failWindow && !this.finished ){
-        finishLine.failWindow = finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
-      }
+        // finishLine.failWindow = finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
+      } /////////
 
       components.nosBar.classList.remove("accumulation");
       if( !this.speedUp ){
@@ -529,7 +530,7 @@ function Floor () {
   this.threeTexture.repeat.set( 500, 500 );
   this.threeTexture.anisotropy = 16;
   this.threeMaterial = new THREE.MeshLambertMaterial( { map: this.threeTexture } );
-  this.floor = new THREE.Mesh( new THREE.PlaneBufferGeometry( 4000, 4000 ), this.threeMaterial );
+  this.floor = new THREE.Mesh( new THREE.PlaneBufferGeometry( 3000, 3000 ), this.threeMaterial );
   this.floor.position.y = - 10;
   this.floor.rotation.x = - Math.PI / 2;
   this.floor.receiveShadow = true;
@@ -1202,9 +1203,30 @@ let initWorld = () => {
 
   ////////
   // speedUpPoints = new player.speedUpPoints(200, 10);
-
+  /////////////
+  let permissionWrapper = document.querySelector(".permission-wrapper");
+  let elec = {
+    src: "./asset/imgs/electric.png",
+    className: "elec"
+  };
+  ///////////////
+  let createElec = () => {
+    let a = createElement("img", elec, permissionWrapper );
+    // let top = Math.random() * 100;
+    // let left = Math.random() * 100;
+    // a.style.setProperty("--elec-top", `${top}%`);
+    // a.style.setProperty("--elec-left", `${left}%`);
+    console.log("create one");
+    return a;
+  }
 
   let loadCarAudio = async () => {
+    // createElec();
+    // let eee = setInterval( ()=>{
+    //   createElec();
+    // }, 1000 );
+
+
     let data = JSON.parse( localStorage.getItem("chosencar") );
     let objsOk = await createObjs();
     console.log(objsOk);
@@ -1249,8 +1271,8 @@ let initWorld = () => {
           if(n < -1 ){
 
             // ths longest one -> background music
-            audio.startPlay( audio.audioNodesData[3].buffer, 0, audio.audioNodesData[3].buffer.duration, 0 );
-            console.log("play theme");
+            // audio.startPlay( audio.audioNodesData[3].buffer, 0, audio.audioNodesData[3].buffer.duration, 0 );
+            console.log("play theme"); /////////
 
             components.countdown.remove();
             components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
@@ -1276,66 +1298,6 @@ let initWorld = () => {
       });
     });
   });
-
-
-    // driver = player.car;
-    // scene.add(player.car);
-    // player.updatePhysics(player.car);
-    //
-    // loading.style.display = "none";
-    //
-    // document.querySelector(".permission-button").addEventListener("click", e => {
-    //   audioContext.resume().then( () => {
-    //     document.querySelector(".permission-wrapper").style.display = "none";
-    //     components.showUI();
-    //
-    //     let n = 3;
-    //     let countdownSounds = [];
-    //     let countdown = setInterval( ()=>{
-    //       let countdownSound;
-    //       if( n === 0 ){
-    //         countdownSound = audio.countdownSound(800);
-    //       } else { countdownSound = audio.countdownSound(400); }
-    //
-    //       if( n === 3 ){
-    //         components.countdown = createElement("div", { className: "countdown", textContent: n }, body);
-    //       }else if( n > 0 ) {
-    //         components.countdown.textContent = n;
-    //       }
-    //
-    //       countdownSounds.push(countdownSound);
-    //       n -= 1;
-    //
-    //       if(n < -1 ){
-    //
-    //         // ths longest one -> background music
-    //         audio.startPlay( audio.audioNodesData[3].buffer, 0, audio.audioNodesData[3].buffer.duration, 0 );
-    //         console.log("play theme");
-    //
-    //         components.countdown.remove();
-    //         components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
-    //         components.timeBar.style.setProperty("--left-time", `10s`);
-    //
-    //         countdownSounds.forEach( sound => {
-    //           sound.stop();
-    //         });
-    //
-    //         if( window.DeviceMotionEvent ){
-    //           window.addEventListener("devicemotion", initOrientation );
-    //         }
-    //
-    //         clearInterval(countdown);
-    //         return;
-    //       }
-    //     }, 1000 );
-    //
-    //
-    //     // Render world after loading car model
-    //     render();
-    //
-    //   });
-    // });
-
 
 }
 

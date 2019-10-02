@@ -6,12 +6,27 @@
   font-family: mario;
   src: url("asset/font/SuperMario256.ttf");
 }
+@font-face {
+  font-family: alpine;
+  src: url("asset/font/Alpine-7558S.ttf");
+}
+@font-face {
+  font-family: open;
+  src: url("asset/font/Open24DisplaySt.ttf");
+}
+@font-face {
+  font-family: bob;
+  src: url("asset/font/SpongeboyMeBob.ttf");
+}
+
 
 :root {
   --bar-height: 0px;
   --needle-rotation: 134deg;
   --needle-vibrant: 449deg;
   --left-time: 20s;
+  /* --elec-top: 60%;
+  --elec-left: 30%; */
 }
 
 /* Fix the position of divs */
@@ -36,24 +51,25 @@
 }
 
 /* Music Permission */
+/*
 .permission-wrapper {
   width: 100%; height: 100%; top:0px; left:0px;
   background-color: #ddd; opacity: 0.8;
-  font-family: destroy; font-size: 22px;
-  text-align: center; line-height: 55px;
+  font-family: alpine; font-size: 28px;
+  text-align: center; line-height: 30px;
   display: flex; align-items: center; justify-content: center;
 }
 .permission {
+  box-shadow: -10px 3px 10px grey, 10px 3px 10px grey;
   width: 60%; height: 50%;
   background-color: #fff;
-  border-radius: 12px; border: 5px solid #000;
-  /* top: 100px; left: 33.33%; */
+  border-radius: 12px;
   display: flex; flex-direction: column;
   align-items: center; justify-content: space-around;
 }
 
 .permission-content {
-  /* font-size: 26px; */
+  font-size: 20px; letter-spacing: 3px;
 }
 
 .permission-button-wrapper {
@@ -62,15 +78,99 @@
 }
 
 .permission-button {
-  width: 180px; height: 50px;
-  border-radius: 8px; border: 3px solid #000;
+  width: 220px; height: 50px;
+  font-family: destroy; line-height: 55px;
+  color: firebrick; text-shadow: -3px 0px 3px #000000;
+  box-shadow: -10px 3px 10px grey, 10px 3px 10px grey, -10px -3px 10px grey, 10px -3px 10px grey;
+  border-radius: 8px;
   cursor: pointer;
 }
 
 .permission-button:hover {
   background-color: steelblue;
 }
+*/
+.permission-wrapper {
+  position: absolute;
+  width: 100%; height: 100%; top:0px; left:0px;
+  background-color: #000; color: #fff;
+  font-family: alpine; font-size: 18px;
+  text-align: center; line-height: 26px; letter-spacing: 3px;
+  display: flex; align-items: center; justify-content: center;
+}
 
+.permission {
+  /* background-color: #fff; */
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  /* border: 10px solid #fff; */
+  /* border-bottom: 16px solid firebrick;
+  border-left: 16px solid firebrick; */
+
+  box-shadow:
+  -20px 10px 20px #a6ffff, 20px 0px 20px #ffbb00, 20px 10px 20px #ff0000,
+  20px 10px 20px #ffbb00, -20px 10px 20px #a6ffff, 20px 10px 20px #ff0000,
+  20px 10px 20px #ff0000, -20px 10px 20px #ffbb00, 20px -10px 20px #a6ffff,
+  10px 10px 16px #000, -10px 10px 16px #000, 10px -10px 16px #000, -10px -10px 16px #000;
+
+  opacity: 0.9;
+  animation: spin 4s linear 0s infinite;
+  filter: blur(5px);
+}
+
+@keyframes spin {
+  from { transform: rotate( 0deg );}
+  to { transform: rotate( 360deg ); }
+}
+
+.elec {
+  width: 45%;
+  position: absolute; top: 48%;
+  /* left: 50%; */
+}
+.elec-cover-wrapper {
+  position: absolute; top: 48%;
+  width: 45%; height: 18%;
+  display: flex;
+  justify-content: flex-end;
+}
+.elec-cover {
+  position: absolute;
+  width: 100%; height: 100%;
+  background-color: black;
+  animation: cover 1.2s ease-in-out 0s infinite;
+}
+@keyframes cover {
+  from{ width:100% }
+  to{ width:0% }
+}
+
+.permission-content {
+  color: #fff; text-align: center; 
+  width: 30%;
+  position: absolute; top: 25%;
+}
+
+.permission-button-wrapper {
+  text-align: center; font-size: 36px;
+  width: 30%;
+  position: absolute; top: 70%;
+}
+
+.permission-button {
+  font-family: destroy;
+  /* text-shadow: -3px 0px 3px #4dffff; */
+  cursor: pointer;
+}
+
+.permission-button:hover {
+  animation: rotate 0.5s linear 0s infinite alternate;
+}
+
+@keyframes rotate {
+  from { font-size: 30px;}
+  to{ font-size: 36px;} }
+}
 
 /* Finished / Failed PopUp Window */
 .finish-wrapper {
