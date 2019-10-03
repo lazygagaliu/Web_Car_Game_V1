@@ -68,7 +68,7 @@ let initThree = () => {
   // Initialize renderer
   renderer = new THREE.WebGLRenderer( { antialias:true } ); // renders the edges of shapes more smoothly
   renderer.setSize( window.innerWidth, window.innerHeight );
-  renderer.setClearColor( "black", 1 ); //sets our background to a light gray colour
+  renderer.setClearColor( "black", 1 );
   document.body.appendChild( renderer.domElement );
 
   // Initialize scene
@@ -84,26 +84,10 @@ let initThree = () => {
 	let light = new THREE.DirectionalLight( 0xdfebff, 1 );
 	light.position.set( 50, 1000, 100 );
 	light.position.multiplyScalar( 1.3 );
-	light.castShadow = true;
-	light.shadow.mapSize.width = 1024;
-	light.shadow.mapSize.height = 1024;
-	let d = 300;
-	light.shadow.camera.left = - d;
-	light.shadow.camera.right = d;
-	light.shadow.camera.top = d;
-	light.shadow.camera.bottom = - d;
-	light.shadow.camera.far = 1000;
 	scene.add( light );
 
-  // Add clock
-  // clock = new THREE.Clock();
-
-  // Add helper
-  // axes = new THREE.AxisHelper(800);
-
-  // scene.add(axes);
   // const controls = new OrbitControls(camera, renderer.domElement);
-  // console.log(controls);
+
 }
 
 // Create Element to render on the screen
@@ -132,8 +116,6 @@ function Car () {
     position: new CANNON.Vec3(200, 15, 0),
     shape: this.cannonShape,
     material: this.cannonMaterial,
-    // angularDamping: 0.3,
-    // linearDamping: 0.3
   });
 
   // Game state
@@ -143,18 +125,21 @@ function Car () {
   // Car States
   this.movement = "stop";
   this.speedUp = false;
+
   // Speed
   this.speed = 0;
   this.accelaration = 0.1; // nos 0.3  back -0.05
   this.decelaration = 0.03;
   this.brake = 0.05;
   this.maxSpeed = 4;  // nos 7  back -2
+
   // Meter
   this.meter = 134;
   this.meterAccelaration = 7.9; // nos 23.7  back 4
   this.meterDecelaration = 2.4;
   this.meterBrake = 4;
   this.maxMeter = 454; // nos 694  back 294
+
   // Num
   this.num = 0;
   this.numAccelaration = 2.5; // nos 7.5  back 1.25
@@ -162,6 +147,7 @@ function Car () {
   this.numBrake = 1.25;
   this.maxNum = 100;  // nos 175  back 50
 
+  // Rotation
   this.radian = 0;
   this.rotation = 0;
 
@@ -269,13 +255,11 @@ function Car () {
     if( this.finished ){
       this.movement = "stop";
       components.timeBar.remove();
-      components.finalTime();
-      console.log("finished");
     }
 
     // Run out of the time --> make car stop
     if( components.timeBar ){
-      components.timeBarWidth = getComputedStyle(components.timeBar).width;
+
       if( Date.now() - this.period > 0  && !this.finished ){
           this.movement = "stop";
           this.failed = true;
@@ -295,7 +279,6 @@ function Car () {
         speedUpPoints = new this.speedUpPoints(
           driver.position.x + Math.sin(this.rotation)*10, driver.position.z + Math.cos(this.rotation)*10
         );
-        console.log("fire");
       }
       this.accelaration = 0.3;
       this.maxSpeed = 7;
@@ -394,13 +377,11 @@ function Car () {
       break;
     }
 
-    // if( alphaInit === undefined ){
       if( this.speed < 0 ){
         this.rotation -= this.radian;
       } else {
         this.rotation += this.radian;
       }
-    // }
 
     // Update NosBarHeight
     components.nosBarHeight = getComputedStyle(components.nosBar).height;
@@ -423,7 +404,7 @@ function Car () {
     if( this.speed === 0 ){
       if( this.failed && !finishLine.failWindow && !this.finished ){
         finishLine.failWindow = finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
-      } /////////
+      }
 
       components.nosBar.classList.remove("accumulation");
       if( !this.speedUp ){
@@ -444,8 +425,8 @@ function Car () {
 
     // Update Car position
     this.cannonBody.quaternion.setFromAxisAngle( new CANNON.Vec3(0, 1, 0), 2*Math.PI/360*180 + this.rotation);
-    this.cannonBody.position.z -= z;  //driver
-    this.cannonBody.position.x -= x;  //driver
+    this.cannonBody.position.z -= z;
+    this.cannonBody.position.x -= x;
 
     // Update Camera position
     camera.rotation.y = this.rotation;
@@ -456,8 +437,8 @@ function Car () {
     components.needle.style.transform = `rotate(${this.meter}deg)`;
 
     // Update needle transformed degree
-    // components.needleR = components.getNeedleDeg();
     components.needle.style.setProperty("--needle-rotation", `${this.meter}deg`);
+
     // Update the Number
     components.speedNum.textContent = Math.floor( Math.abs( this.num ) );
 
@@ -468,7 +449,6 @@ function Car () {
         components.needle = createElement("div", { className: "needle" }, components.meter);
         components.needle.style.setProperty("--needle-rotation", `${this.meter}deg`);
 
-        // components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
       }
 
       components.needle.style.setProperty("--needle-vibrant", `${this.meter + 5}deg`);
@@ -521,7 +501,7 @@ function Floor () {
   });
   this.cannonBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1, 0, 0), -2*Math.PI/360*90 );
   // THREE part
-  this.threeTexture = loader.load("asset/imgs/road.jpg"); //tarmac_light.png
+  this.threeTexture = loader.load("asset/imgs/road.jpg");
   this.threeTexture.wrapS = this.threeTexture.wrapT = THREE.RepeatWrapping;
   this.threeTexture.repeat.set( 500, 500 );
   this.threeTexture.anisotropy = 16;
@@ -534,7 +514,6 @@ function Floor () {
   this.addFloor = () => {
     world.add( this.cannonBody );
     scene.add( this.floor );
-    // console.log(this.cannonBody);
   }
 }
 
@@ -704,6 +683,7 @@ function Components () {
     this.meter, this.speedNum, this.speedNumUnit, this.timeCount, this.timeWrapper, this.nosLightning
   ];
 
+  // Show UI after enter the game
   this.showUI = () => {
     this.elements.forEach( el => {
       el.style.display = "block";
@@ -737,11 +717,7 @@ function Components () {
         timeShow[i] = timeArr[i];
       }
     }
-    this.timeCount.textContent = `${timeShow[2]}:${timeShow[1]}:${timeShow[0]}`;
-  }
-
-  this.finalTime = () => {
-    this.timeCount.textContent = this.timeCount.textContent;
+    this.timeCount.textContent = player.finished ? this.timeCount.textContent : `${timeShow[2]}:${timeShow[1]}:${timeShow[0]}`;
   }
 
 }
@@ -939,10 +915,6 @@ function Audio () {
     "themeSong"
   ];
 
-  // The data for the startSound to loop the max speed period
-  // this.loopStart = 1.018;
-  // this.loopEnd = 1.037;
-
   // Method for comparing the audios length for sorting them out
   this.compare = (a, b) => {
     let audioA = a.duration;
@@ -1072,8 +1044,6 @@ function Audio () {
     } //1.037 / 10 * 3
 
     this.loopStart = currentAudio === "startSound" ? 1.018 : 0;
-     // this.loopStart = 0;
-     // this.loopEnd = this.audioNodesData[i].buffer.duration;
 
     for( let i = 0; i < this.audioNodesData.length - 1; i++ ){
       this.loopEnd = currentAudio === "startSound" ? 1.037 : this.audioNodesData[i].buffer.duration;
@@ -1089,12 +1059,6 @@ function Audio () {
     }
   }
 
-  //////
-  this.stopPlay = () => {
-    this.startSound.disconnect(audioContext);
-    this.audioNodesData[1].playing = false;
-  }
-
 
 }
 
@@ -1103,14 +1067,10 @@ function Audio () {
   let render = () => {
 
     if( player.speedUp && speedUpPoints && player.speedUpObjs.length !== 0 ){
-      console.log("update fire");
       speedUpPoints.update();
     }
 
     player.move();
-
-    // cannonDebugRenderer.update();
-    // box.update();
 
     // Keep player's car updated
     player.updatePhysics(driver);
@@ -1128,8 +1088,6 @@ function Audio () {
 let initWorld = () => {
   initCannon();
   initThree();
-  ////// Helper
-  // cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
 
  let createObjs = () => {
 
@@ -1174,17 +1132,13 @@ let initWorld = () => {
   let loadCarAudio = async () => {
     let data = JSON.parse( localStorage.getItem("chosencar") );
     let objsOk = await createObjs();
-    console.log(objsOk);
     player.car = await player.loadModel( data.path, data.mtl, data.obj );
-    console.log(player.car);
     let audioOk = await audio.getData();
-    console.log(audioOk);
     return `All data are ready`;
   }
 
 
   loadCarAudio().then( result => {
-    console.log(result);
     driver = player.car;
     scene.add(player.car);
     player.updatePhysics(player.car);
@@ -1301,6 +1255,7 @@ document.getElementsByTagName("canvas")[0].addEventListener("touchstart", ()=>{
   player.movement = "forward";
 });
 
+// Landscape Ratio
 let turnLandscape = () => {
   if( window.matchMedia( "(max-width: 768px)" ).matches ){
     camera.aspect = window.innerHeight / window.innerWidth;
