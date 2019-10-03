@@ -5,12 +5,10 @@ import OrbitControls from 'three-orbitcontrols';
 
 
 /* --------- Variables --------- */
-let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints, finishLine, audio, speedUpPoints, alphaInit, gammaInit;
+let renderer, scene, camera, light, clock, world, sky, floor, wall, player, driver, components, checkpoints, finishLine, audio, speedUpPoints;
 
 // Web Audio API
-let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-// let AudioContext = window.AudioContext || window.webkitAudioContext;
-// let audioContext = new window.AudioContext;
+let audioContext = new (window.AudioContext || window.webkitAudioContext);  //()
 
 // DOMS from HTML
 let body = document.querySelector("body");
@@ -278,8 +276,7 @@ function Car () {
     // Run out of the time --> make car stop
     if( components.timeBar ){
       components.timeBarWidth = getComputedStyle(components.timeBar).width;
-      // console.log(components.timeBarWidth);
-      if( components.timeBarWidth === "0px" && !this.finished ){
+      if( Date.now() - this.period > 0  && !this.finished ){
           this.movement = "stop";
           this.failed = true;
           console.log("failed");
@@ -290,7 +287,6 @@ function Car () {
 
     } else{
       this.movement = "stop";
-
     }
 
     // use NOS -- SpeedUp -> true ----- change some states for nos
@@ -426,7 +422,7 @@ function Car () {
 
     if( this.speed === 0 ){
       if( this.failed && !finishLine.failWindow && !this.finished ){
-        // finishLine.failWindow = finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
+        finishLine.failWindow = finishLine.showFinishWindow("DON'T GIVE UP!", "WANNA TRY AGAIN ?");
       } /////////
 
       components.nosBar.classList.remove("accumulation");
@@ -784,9 +780,11 @@ function Checkpoints () {
   this.collision = (e) => {
     console.log("colliding!!!");
 
+    player.period = Date.now() + e.target.time * 1000;
+
     components.timeBar.remove();
     components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
-    components.timeBar.style.setProperty("--left-time", `${e.target.time}s`);
+    components.timeBar.style.setProperty("--left-time", `${e.target.time - 2}s`);
 
     if( e.target.last ){
       finishLine.addLine();
@@ -901,7 +899,7 @@ function FinishLine () {
     }
 
     let finishOptions = createElement("div", {className: "finish-options"}, recordWrapper);
-    let restart = createElement("div", {className: "finish-option", textContent: "RESTART"}, finishOptions);
+    let restart = createElement("div", {className: "finish-option finish-restart", textContent: "RESTART"}, finishOptions);
     let exit = createElement("div", {className: "finish-option", textContent: "EXIT"}, finishOptions);
 
     restart.addEventListener("click", e => {
@@ -1165,68 +1163,15 @@ let initWorld = () => {
 
      // Create FinishLine Obj
      finishLine = new FinishLine;
+     // finishLine.showFinishWindow( "YOUR BEST RECORD", components.timeCount.textContent ); /////
 
      resolve(finishLine);
    });
 
 
  }
-  // // Create Audio Obj
-  // audio = new Audio;
-  //
-  // // Load Car
-  // player = new Car;
-  // player.addCar();
-  //
-  // // Add SkyBox
-  // sky = new Skybox;
-  // sky.addSky();
-  //
-  // // Add Floor
-  // floor = new Floor;
-  // floor.addFloor();
-  //
-  // // Add Wall
-  // wall = new Wall;
-  // wall.stickTextures();
-  // wall.addWall();
-  //
-  // // Add UI to screen
-  // components = new Components;
-  //
-  // // Add Checkpoints
-  // checkpoints = new Checkpoints;
-  // checkpoints.addCheckpoint();
-  //
-  // // Create FinishLine Obj
-  // finishLine = new FinishLine;
-
-  ////////
-  // speedUpPoints = new player.speedUpPoints(200, 10);
-  /////////////
-  let permissionWrapper = document.querySelector(".permission-wrapper");
-  let elec = {
-    src: "./asset/imgs/electric.png",
-    className: "elec"
-  };
-  ///////////////
-  let createElec = () => {
-    let a = createElement("img", elec, permissionWrapper );
-    // let top = Math.random() * 100;
-    // let left = Math.random() * 100;
-    // a.style.setProperty("--elec-top", `${top}%`);
-    // a.style.setProperty("--elec-left", `${left}%`);
-    console.log("create one");
-    return a;
-  }
 
   let loadCarAudio = async () => {
-    // createElec();
-    // let eee = setInterval( ()=>{
-    //   createElec();
-    // }, 1000 );
-
-
     let data = JSON.parse( localStorage.getItem("chosencar") );
     let objsOk = await createObjs();
     console.log(objsOk);
@@ -1271,12 +1216,11 @@ let initWorld = () => {
           if(n < -1 ){
 
             // ths longest one -> background music
-            // audio.startPlay( audio.audioNodesData[3].buffer, 0, audio.audioNodesData[3].buffer.duration, 0 );
-            console.log("play theme"); /////////
-
+            audio.startPlay( audio.audioNodesData[3].buffer, 0, audio.audioNodesData[3].buffer.duration, 0 );
             components.countdown.remove();
             components.timeBar = createElement("div", { className: "fuel-inner" }, components.timeWrapper);
             components.timeBar.style.setProperty("--left-time", `10s`);
+            player.period = Date.now() + 10 * 1000;
 
             countdownSounds.forEach( sound => {
               sound.stop();
@@ -1353,17 +1297,9 @@ document.body.addEventListener( "keyup", e => {
   }
 } );
 
-// document.querySelectorAll(".permission-button")[1].addEventListener("click", () => {
-//   location.href = "./";
-// });
-
 document.getElementsByTagName("canvas")[0].addEventListener("touchstart", ()=>{
   player.movement = "forward";
 });
-
-// document.getElementsByTagName("canvas")[0].addEventListener("click", ()=>{
-//   player.movement = "forward";
-// });
 
 let turnLandscape = () => {
   if( window.matchMedia( "(max-width: 768px)" ).matches ){

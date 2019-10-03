@@ -7,16 +7,12 @@
   src: url("asset/font/SuperMario256.ttf");
 }
 @font-face {
-  font-family: alpine;
-  src: url("asset/font/Alpine-7558S.ttf");
-}
-@font-face {
   font-family: open;
   src: url("asset/font/Open24DisplaySt.ttf");
 }
 @font-face {
-  font-family: bob;
-  src: url("asset/font/SpongeboyMeBob.ttf");
+  font-family: hello;
+  src: url("asset/font/HelloFirstieBigGulp.ttf");
 }
 
 
@@ -25,8 +21,6 @@
   --needle-rotation: 134deg;
   --needle-vibrant: 449deg;
   --left-time: 20s;
-  /* --elec-top: 60%;
-  --elec-left: 30%; */
 }
 
 /* Fix the position of divs */
@@ -50,62 +44,75 @@
   /* display: none; */
 }
 
-/* Music Permission */
-/*
-.permission-wrapper {
+
+/* Finished / Failed PopUp Window */
+.finish-wrapper {
   width: 100%; height: 100%; top:0px; left:0px;
-  background-color: #ddd; opacity: 0.8;
-  font-family: alpine; font-size: 28px;
-  text-align: center; line-height: 30px;
+  background-color: rgba(221,221,221, 0.8);
+  z-index: 200;
   display: flex; align-items: center; justify-content: center;
 }
-.permission {
-  box-shadow: -10px 3px 10px grey, 10px 3px 10px grey;
-  width: 60%; height: 50%;
+.record-wrapper {
+  width: 60%;
+  position: absolute;
   background-color: #fff;
   border-radius: 12px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: space-around;
+  /* border: 3px solid #000; */
+  box-shadow: 10px 10px 20px #ddd, 10px -10px 20px #ddd, -10px 10px 20px #ddd, -10px -10px 20px #ddd;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  padding: 20px 0px;
+  text-align: center; line-height: 55px; font-family: destroy;
+  opacity: 0.9
 }
 
-.permission-content {
-  font-size: 20px; letter-spacing: 3px;
+.player-record-wrapper {
+  font-size: 36px;
+  width: 90%;
 }
 
-.permission-button-wrapper {
-  width:500px;
-  display: flex; justify-content: space-evenly;
+.finish-options {
+  display: flex;
 }
 
-.permission-button {
-  width: 220px; height: 50px;
-  font-family: destroy; line-height: 55px;
-  color: firebrick; text-shadow: -3px 0px 3px #000000;
-  box-shadow: -10px 3px 10px grey, 10px 3px 10px grey, -10px -3px 10px grey, 10px -3px 10px grey;
-  border-radius: 8px;
+.record-wrapper img {
+  width: 23%;
+}
+.finish-restart {
+  color: firebrick;
+}
+
+.finish-option {
+  width: 180px; height: 50px;
+  border-radius: 8px; border: 3px solid #000;
   cursor: pointer;
+  font-size: 24px; letter-spacing: 1px;
+  margin: 20px;
 }
 
-.permission-button:hover {
+.finish-option:hover {
   background-color: steelblue;
+  font-size: 30px;
 }
-*/
+
+/* Countdown */
+.countdown {
+  font-family: mario; font-size: 70px;
+  color: #ff4500;
+  top: 20%; left: 48%;
+}
+
+/* Music Permission */
 .permission-wrapper {
-  position: absolute;
   width: 100%; height: 100%; top:0px; left:0px;
   background-color: #000; color: #fff;
-  font-family: alpine; font-size: 18px;
-  text-align: center; line-height: 26px; letter-spacing: 3px;
+  font-family: hello; font-size: 32px;
+  text-align: center;
   display: flex; align-items: center; justify-content: center;
 }
 
 .permission {
-  /* background-color: #fff; */
   width: 500px; height: 500px;
   border-radius: 50%;
-  /* border: 10px solid #fff; */
-  /* border-bottom: 16px solid firebrick;
-  border-left: 16px solid firebrick; */
 
   box-shadow:
   -20px 10px 20px #a6ffff, 20px 0px 20px #ffbb00, 20px 10px 20px #ff0000,
@@ -124,13 +131,12 @@
 }
 
 .elec {
-  width: 45%;
-  position: absolute; top: 48%;
-  /* left: 50%; */
+  width: 400px;
+  position: absolute; top: 50%;
 }
 .elec-cover-wrapper {
-  position: absolute; top: 48%;
-  width: 45%; height: 18%;
+  position: absolute; top: 50%;
+  width: 400px; height: 130px;
   display: flex;
   justify-content: flex-end;
 }
@@ -146,9 +152,9 @@
 }
 
 .permission-content {
-  color: #fff; text-align: center; 
+  color: #fff; text-align: center; line-height: 40px; letter-spacing: 5px;
   width: 30%;
-  position: absolute; top: 25%;
+  position: absolute; top: 30%;
 }
 
 .permission-button-wrapper {
@@ -158,7 +164,7 @@
 }
 
 .permission-button {
-  font-family: destroy;
+  font-family: destroy; color: firebrick;
   /* text-shadow: -3px 0px 3px #4dffff; */
   cursor: pointer;
 }
@@ -169,62 +175,7 @@
 
 @keyframes rotate {
   from { font-size: 30px;}
-  to{ font-size: 36px;} }
-}
-
-/* Finished / Failed PopUp Window */
-.finish-wrapper {
-  width: 100%; height: 100%; top:0px; left:0px;
-  background-color: #ddd; opacity: 0.8;
-  z-index: 200;
-  display: flex; align-items: center; justify-content: center;
-}
-.record-wrapper {
-  width: 60%;
-  /* position: absolute; top: 100px; left: 33.33%; */
-  background-color: #fff;
-  border-radius: 12px;
-  border: 3px solid #000;
-  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-  padding: 20px 0px;
-  text-align: center; line-height: 55px; font-family: destroy;
-}
-
-.player-record-wrapper {
-  font-size: 36px;
-  width: 90%;
-}
-
-.finish-options {
-  display: flex;
-}
-
-.record-wrapper img {
-  width: 23%;
-}
-
-.finish-option {
-  width: 180px; height: 50px;
-  border-radius: 8px; border: 3px solid #000;
-  cursor: pointer;
-  font-size: 24px; letter-spacing: 1px;
-  margin: 20px;
-}
-
-.finish-option:hover {
-  background-color: steelblue;
-}
-
-
-/* Countdown */
-.countdown {
-  font-family: mario; font-size: 70px;
-  color: #ff4500;
-  top: 20%; left: 48%;
-}
-@keyframes countdown {
-  from {font-size: 180px;}
-  to {font-size: 60px;}
+  to{ font-size: 36px;}
 }
 
 /* Fuel, Timebar */
@@ -278,12 +229,14 @@
 }
 
 .meter-number {
+  font-family: open;
   opacity: 0.5;
   font-size: 60px;
   bottom: 60px;
   right: 270px;
 }
 .meter-unit {
+  font-family: open;
   opacity: 0.5;
   font-size: 30px;
   bottom: 25px;
