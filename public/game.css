@@ -25,7 +25,7 @@
 
 /* Fix the position of divs */
 .loading, .fuel-outer, .meter, .meter-number, .meter-unit, .n-outer,
-.countdown, .running-time, .wrapper, .permission-wrapper, .finish-wrapper {
+.countdown, .running-time, .wrapper, .permission-wrapper, .finish-wrapper, .permission-content-wrapper {
   position: absolute;
 }
 
@@ -133,9 +133,21 @@
   to { transform: rotate( 360deg ); }
 }
 
+.permission-content-wrapper {
+  /* top: 50%; left: 50%; */
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  height: 60%;
+}
+
+.permission-content {
+  color: #fff; text-align: center; line-height: 40px; letter-spacing: 5px;
+  width: 30%;
+  /* position: absolute; top: 30%; */
+}
+
 .elec {
   width: 400px;
-  position: absolute; top: 50%;
+  /* position: absolute; top: 50%; */
 }
 .elec-cover-wrapper {
   position: absolute; top: 50%;
@@ -144,7 +156,7 @@
   justify-content: flex-end;
 }
 .elec-cover {
-  position: absolute;
+  /* position: absolute; */
   width: 100%; height: 100%;
   background-color: black;
   animation: cover 1.2s ease-in-out 0s infinite;
@@ -154,16 +166,10 @@
   to{ width:0% }
 }
 
-.permission-content {
-  color: #fff; text-align: center; line-height: 40px; letter-spacing: 5px;
-  width: 30%;
-  position: absolute; top: 30%;
-}
-
 .permission-button-wrapper {
   text-align: center; font-size: 36px;
   width: 30%;
-  position: absolute; top: 70%;
+  /* position: absolute; top: 70%; */
 }
 
 .permission-button {
