@@ -25,7 +25,7 @@ A 3D web racing game that the player can drive his/her preferred car with full f
 
 <br />
 
-![](https://i.imgur.com/L16Zomt.gif)
+![](https://i.imgur.com/p2Z5Yzv.gif)
 
 * Speedometer with vibrated effect while at the highest speed.
 * Blue NOS accumulated bar which with lightning on it keeps going up as long as car moving.
@@ -44,4 +44,3 @@ A 3D web racing game that the player can drive his/her preferred car with full f
 
 * Created the finish line once player passing through the last checkpoint.
 * Showed the record and a trophy when player finish one lap in time.
-
