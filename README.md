@@ -3,7 +3,7 @@
 Web Link : https://ride-or-die-8ca6f.firebaseapp.com/
 
 ## Introduction
-A 3D web racing game that the player can drive his/her preferred car with full functions including going forward/backward, turn right/left and NOS system in a physical world.
+A 3D web racing game that the player can drive his/her preferred car with full functions including going forward/backward, turning right/left and NOS system in a physical world.
 
 ## Techniques
 * OOP design pattern
@@ -21,16 +21,16 @@ A 3D web racing game that the player can drive his/her preferred car with full f
 ![](https://i.imgur.com/zNgJNYl.gif)
 
 * Users can choose their favored car.
-* Instruction of controller
+* Instruction of the controller.
 
 <br />
 
 ![](https://i.imgur.com/4fuU876.gif)
 
-* Speedometer with vibrated effect while at the highest speed.
+* Speedometer with vibrated effect at the highest speed.
 * Blue NOS accumulated bar which with lightning on it keeps going up as long as car moving.
-* Orange time bar recovers to full state once the player go through each animated circle checkpoint.
-* Sprite effects appreared from the back of the car once NOS is actived.
+* Orange time bar recovered to full state once the player go through each animated circle checkpoint.
+* Created and rendered sprites at the back of the car once NOS is activated.
 
 <br />
 
