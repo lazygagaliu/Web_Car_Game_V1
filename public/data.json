@@ -1,0 +1,19 @@
+{
+  "cars": [
+    {
+      "id": 0,
+      "path": "asset/chevrolet/",
+      "mtl": "chevrolet.mtl",
+      "obj": "chevrolet.obj",
+      "chosen": true
+    },
+    {
+      "id": 1,
+      "path": "asset/lam/",
+      "mtl": "Lamborghini.mtl",
+      "obj": "Lamborghini.obj",
+      "chosen": false
+    }
+  ]
+
+}

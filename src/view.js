@@ -1,0 +1,95 @@
+import * as THREE from 'three';
+import * as PostProcessing from "postprocessing";
+
+class View {
+  constructor(){
+    // Renderer
+    this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    this.renderer.setClearColor( 0x000000 );
+    document.body.appendChild( this.renderer.domElement );
+
+    // Scene
+    this.scene = new THREE.Scene();
+
+    // Camera
+    this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 3000 );
+    this.camera.position.set( 100, 30, 200 );
+    this.scene.add(this.camera);
+
+    // Light
+    this.light = new THREE.SpotLight( 0xfffff0, 2);
+    this.light.position.set( 100, 300, 60 );
+    this.light.angle = 0.7;
+    this.light.penumbra = 0.4;
+    this.light.decay = 1.2;
+    this.scene.add(this.light);
+
+    // PostProcessing
+    this.composer = new PostProcessing.EffectComposer(this.renderer);
+    this.effectPass = new PostProcessing.EffectPass( this.camera, new PostProcessing.BloomEffect() );
+    this.effectPass.renderToScreen = true;
+
+    this.composer.addPass( new PostProcessing.RenderPass(this.scene, this.camera) );
+    this.composer.addPass(this.effectPass);
+
+    // Floor
+    this.matFloor = new THREE.MeshPhongMaterial();
+    this.geoFloor = new THREE.PlaneBufferGeometry( 800, 800 );
+    this.mshFloor = new THREE.Mesh( this.geoFloor, this.matFloor );
+    this.mshFloor.rotation.x = - 2 * Math.PI / 360 * 90;
+    this.mshFloor.position.set( 0, -40, 40 );
+    this.mshFloor.receiveShadow = true;
+    this.scene.add(this.mshFloor);
+
+    this.carsOption = document.querySelectorAll(".car-option");
+
+  }
+
+  addCarsToScene = (carsModel) => {
+    carsModel.forEach( carModel => {
+      this.scene.add(carModel);
+      console.log(carModel);
+      console.log("car add");
+    });
+  };
+
+  showChosenCar (carsData, carsModel) {
+    for(let i = 0; i < carsData.length; i++){
+      if(carsData[i].chosen){
+        carsModel[i].visible = true;
+        this.carsOption[i].classList.add("selected");
+      }else {
+        carsModel[i].visible = false;
+        this.carsOption[i].classList.remove("selected");
+      }
+    }
+  }
+
+  bindHandleChooseCarByClick (handler) {
+    document.querySelector(".car-options-wrapper").addEventListener("click", e => {
+      if(e.target.classList.contains("car-option")){
+        const id = parseInt(e.target.id);
+        handler(id);
+      }
+    });
+  }
+
+  bindHandleChooseCarByKeydown (handler) {
+    document.body.addEventListener("keydown", e => {
+      if(e.keyCode === 37 || e.keyCode === 39){
+        handler();
+      }
+    });
+  }
+
+
+
+  render = () => {
+    requestAnimationFrame(this.render);
+    this.composer.render();
+  }
+
+}
+
+export default View;

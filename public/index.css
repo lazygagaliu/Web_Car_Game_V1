@@ -106,13 +106,13 @@
   border-radius: 12px;
 }
 
-.car-1 {
+.car-0 {
   background: radial-gradient(white 5%, #111 90%), url(./asset/imgs/chevrolet.png);
   background-size: cover;
   background-blend-mode: multiply;
 }
 
-.car-2 {
+.car-1 {
   background-image: radial-gradient(white 5%, #111 90%), url("./asset/imgs/lam.png");
   background-size: cover;
   background-blend-mode: multiply;

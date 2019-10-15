@@ -1,9 +1,8 @@
+import sum from "./try.js";
 import View from "./view.js";
 import Model from "./model.js";
 import Controller from "./controller.js";
 
-const app = new Controller( new Model(), new View() );
-console.log(app);
-if(app){
-  app.view.render();
-}
+test('adds 1 + 2 to equal 3', () => {
+  expect(sum(1, 2)).toBe(3);
+});

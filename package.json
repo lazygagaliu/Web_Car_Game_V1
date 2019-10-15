@@ -4,7 +4,7 @@
   "description": "Small Project -- Web Car Game !!!",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "webpack",
     "watch": "webpack --mode development --watch",
     "start": "webpack-dev-server --open"
@@ -21,13 +21,23 @@
   },
   "homepage": "https://github.com/lazygagaliu/Web_Car_Game_V1#readme",
   "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/preset-env": "^7.6.3",
+    "babel-loader": "^8.0.6",
+    "jest": "^24.9.0",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.8",
     "webpack-dev-server": "^3.8.0"
   },
   "dependencies": {
+    "@babel/plugin-transform-runtime": "^7.6.2",
+    "@babel/polyfill": "^7.6.0",
+    "@babel/runtime": "^7.6.3",
     "cannon": "github:schteppe/cannon.js",
+    "core-js": "^3.2.1",
     "postprocessing": "^6.7.0",
+    "regenerator-runtime": "^0.13.3",
     "three": "^0.108.0",
     "three-obj-mtl-loader": "^1.0.3",
     "three-orbitcontrols": "^2.102.2"

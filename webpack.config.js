@@ -1,10 +1,10 @@
 const path = require('path');
 
 module.exports = {
-  entry: {
-    index: './src/index.js',
-    game: "./src/game.js"
-  },
+  entry:{
+        index: './src/index.js',
+        game: "./src/game.js"
+      },
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'public')
@@ -12,4 +12,9 @@ module.exports = {
   devServer: {
     contentBase: './public'
   },
+  module: {
+    rules: [
+      { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
+    ]
+  }
 };
