@@ -18,9 +18,9 @@ class Model {
       });
     });
 
-     this.start = false;
-     this.showControl = false;
-
+    this.arrowState = 0; // 0 start 1 control
+    this.start = false;
+    this.showControlState = false;
 
   }
 
@@ -59,13 +59,32 @@ class Model {
     this.onChosenCarChanged( this.data.cars, this.carsModel );
   };
 
+  toggleArrow () {
+    if(this.arrowState === 0){
+      this.arrowState = 1;
+    }else {
+      this.arrowState = 0;
+    }
+    this.onArrowStateChanged();
+  }
+
   startGame () {
     this.start = true;
+    this.onGameStateChanged();
   };
 
-  showControl () {
-    this.showControl = true;
+  showControl (show) {
+    this.showControlState = show;
+    this.onShowControlChanged(this.showControlState);
   };
+
+  returnAction () {
+    if(this.arrowState === 0){
+      this.startGame();
+    }else {
+      this.showControl(true);
+    }
+  }
 
   bindAddCarsToScene (callback) {
     this.onCarsLoaded = callback;
@@ -74,6 +93,18 @@ class Model {
   bindChosenCarChanged (callback) {
     this.onChosenCarChanged = callback;
   };
+
+  bindShowControl (callback) {
+    this.onShowControlChanged = callback;
+  };
+
+  bindArrowChanged (callback) {
+    this.onArrowStateChanged = callback;
+  }
+
+  bindStartGame (callback) {
+    this.onGameStateChanged = callback;
+  }
 
 }
 

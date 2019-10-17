@@ -44,13 +44,31 @@ class View {
 
     this.carsOption = document.querySelectorAll(".car-option");
 
+    this.controlPopUp = document.querySelector(".fade-wrapper");
+
+    this.bgm = this.createElement("audio", {id: "bgm"}, "source", {src: "asset/audio/JAEGER_Until_Dawn.mp3", type: "audio/mp3"});
+    console.log(this.bgm);
+  }
+
+  createElement (tag, attr, childTag, attrChild) {
+    const el = document.createElement(tag);
+    let child;
+    if(attr){ this.setAttributes(el, attr); }
+    if(childTag){ child = document.createElement(childTag); }
+    if(attrChild){ this.setAttributes(child, attrChild); }
+    el.appendChild(child);
+    return el;
+  }
+
+  setAttributes (el, attr) {
+    for( let key in attr ){
+      el[key] = attr[key];
+    }
   }
 
   addCarsToScene = (carsModel) => {
     carsModel.forEach( carModel => {
       this.scene.add(carModel);
-      console.log(carModel);
-      console.log("car add");
     });
   };
 
@@ -64,6 +82,28 @@ class View {
         this.carsOption[i].classList.remove("selected");
       }
     }
+  };
+
+  showArrow (state) {
+    document.querySelectorAll(".arrow").forEach( arrow => {
+      if(arrow.classList.contains("arrow-hidden")){
+        arrow.classList.remove("arrow-hidden");
+      }else {
+        arrow.classList.add("arrow-hidden");
+      }
+    });
+  }
+
+  showControl (show) {
+    if(show){
+      this.controlPopUp.style.display = "block";
+    }else {
+      this.controlPopUp.style.display = "none";
+    }
+  };
+
+  startGame () {
+    location.href = "game.html";
   }
 
   bindHandleChooseCarByClick (handler) {
@@ -75,15 +115,33 @@ class View {
     });
   }
 
-  bindHandleChooseCarByKeydown (handler) {
+  bindHandleChooseCarByKeydown (handler, keycode1, keycode2) {
     document.body.addEventListener("keydown", e => {
-      if(e.keyCode === 37 || e.keyCode === 39){
+      if(e.keyCode === keycode1 || e.keyCode === keycode2){
         handler();
       }
     });
   }
 
+  bindHandleClickShowControl (handler) {
+    document.body.addEventListener("click", e => {
+      if(e.target.id === "control"){
+        handler(true);
+      } else if(e.target.id === "start"){
+        handler();
+      } else {
+        handler(false);
+      }
+    });
+  }
 
+  resize () {
+    window.addEventListener("resize", () => {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize( window.innerWidth, window.innerHeight );
+    });
+  }
 
   render = () => {
     requestAnimationFrame(this.render);
