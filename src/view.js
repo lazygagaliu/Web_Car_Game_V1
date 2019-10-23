@@ -97,8 +97,10 @@ class View {
   showControl (show) {
     if(show){
       this.controlPopUp.style.display = "block";
+      return "block";
     }else {
       this.controlPopUp.style.display = "none";
+      return "none";
     }
   };
 

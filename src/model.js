@@ -14,6 +14,7 @@ class Model {
         if(this.carsModel.length === this.data.cars.length){
           this.onCarsLoaded(this.carsModel);
           this.onChosenCarChanged( this.data.cars, this.carsModel );
+          this.setDefaultChosenCarForStorage(this.data.cars); // JSON.parse( localStorage.getItem("chosencar") ) ||
         }
       });
     });
@@ -48,7 +49,8 @@ class Model {
     this.data.cars = this.data.cars.map( car => {
       return { id: car.id, path: car.path, mtl: car.mtl, obj: car.obj, chosen: !car.chosen };
     });
-    this.onChosenCarChanged( this.data.cars, this.carsModel );
+    const chosenCar = this.getChosenCarForStorage(this.data.cars);
+    this._updateCar( this.data.cars, this.carsModel, chosenCar );
   };
 
   // toggleCar for clicking
@@ -56,8 +58,18 @@ class Model {
     this.data.cars = this.data.cars.map( car => {
       return car.id === id ? { id: car.id, path: car.path, mtl: car.mtl, obj: car.obj, chosen: true } : { id: car.id, path: car.path, mtl: car.mtl, obj: car.obj, chosen: false };
     });
-    this.onChosenCarChanged( this.data.cars, this.carsModel );
+    const chosenCar = this.getChosenCarForStorage(this.data.cars);
+    this._updateCar( this.data.cars, this.carsModel, chosenCar );
   };
+
+  getChosenCarForStorage (carsData) {
+    return carsData.filter( car => car.chosen === true );
+  }
+
+  setDefaultChosenCarForStorage (carsData) {
+    const chosenCar = this.getChosenCarForStorage(carsData);
+    localStorage.setItem( "chosencar", JSON.stringify(chosenCar) );
+  }
 
   toggleArrow () {
     if(this.arrowState === 0){
@@ -66,6 +78,7 @@ class Model {
       this.arrowState = 0;
     }
     this.onArrowStateChanged();
+    return this.arrowState;
   }
 
   startGame () {
@@ -104,6 +117,11 @@ class Model {
 
   bindStartGame (callback) {
     this.onGameStateChanged = callback;
+  }
+
+  _updateCar(carsData, carsModel, chosenCar){
+    this.onChosenCarChanged( carsData, carsModel );
+    localStorage.setItem( "chosencar", JSON.stringify(chosenCar) );
   }
 
 }

@@ -718,6 +718,7 @@ function Components () {
       }
     }
     this.timeCount.textContent = player.finished ? this.timeCount.textContent : `${timeShow[2]}:${timeShow[1]}:${timeShow[0]}`;
+    return this.timeCount.textContent;
   }
 
 }
