@@ -1,6 +1,6 @@
 {
   "name": "ride_or_die",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Small Project -- Web Car Game !!!",
   "main": "index.js",
   "scripts": {
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lazygagaliu/Web_Car_Game_V1.git"
+    "url": "git+https://github.com/lazygagaliu/Web_Car_Game.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/lazygagaliu/Web_Car_Game_V1/issues"
+    "url": "https://github.com/lazygagaliu/Web_Car_Game/issues"
   },
-  "homepage": "https://github.com/lazygagaliu/Web_Car_Game_V1#readme",
+  "homepage": "https://github.com/lazygagaliu/Web_Car_Game#readme",
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
@@ -28,7 +28,7 @@
     "jest": "^24.9.0",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.8",
-    "webpack-dev-server": "^3.8.0"
+    "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.6.2",
